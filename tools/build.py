@@ -285,6 +285,11 @@ def build(windows, dos, out, work, *, locale='zh-TW', memory_compatible=False):
     # extends below the engine's 16-pixel row, so its em is one pixel smaller.
     pe.patch(0x43D2D9, u32(16), struct.pack('<i', font_height))
     pe.patch(0x43D304, b'\x80', charset)
+    if locale == 'zh-TW':
+        # Raise the final DrawText quad one pixel and keep Y signed at the top edge.
+        pe.patch(0x45F417,
+                 bytes.fromhex('03 c7 85 c0 89 45 68 db 45 68 7d 06 d8 05 c4 9b 48 00'),
+                 bytes.fromhex('8d 44 38 ff 89 45 68 db 45 68') + b'\x90' * 8)
 
     dialog = resource_dialog(pe)
     original_dialog = pe.pe.get_data(dialog.OffsetToData, dialog.Size)
