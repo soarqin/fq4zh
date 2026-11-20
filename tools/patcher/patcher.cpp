@@ -6,13 +6,14 @@
 #include <bcrypt.h>
 #include <commdlg.h>
 
+#include <array>
+#include <cstdint>
 #include <cstring>
 #include <filesystem>
 #include <string>
 #include <utility>
 #include <vector>
 
-#include "patch_data.hpp"
 #include "resource.h"
 
 #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' " \
@@ -23,6 +24,31 @@ namespace fs = std::filesystem;
 using Bytes = std::vector<std::uint8_t>;
 constexpr auto kTitle = L"First Queen IV 中文补丁";
 constexpr auto kVersionHint = L"支持此次校验的 Windows 日文版 v1.10。";
+
+struct PatchRecord {
+    std::uint32_t file_offset, rva, size;
+};
+
+struct PatchData {
+    std::uint32_t target_size, payload_size;
+    std::uint32_t extension_rva, extension_size, code_rva, code_size;
+    const std::array<std::uint8_t, 32>& target_hash;
+    const PatchRecord *first, *last;
+
+    const PatchRecord* begin() const { return first; }
+    const PatchRecord* end() const { return last; }
+};
+
+#include "patch_data.hpp"
+#include "patch_data_cn.hpp"
+
+using zh_tw::kDiskOnly;
+using zh_tw::kHeadersSize;
+using zh_tw::kImageBase;
+using zh_tw::kMessageBoxThunkOffset;
+using zh_tw::kMessageBoxThunkRva;
+using zh_tw::kSourceHash;
+using zh_tw::kSourceSize;
 
 struct PatchError {
     std::wstring message;
@@ -55,9 +81,9 @@ private:
     HANDLE handle_;
 };
 
-const std::uint8_t* patch_bytes() {
-    const auto resource = FindResourceW(nullptr, MAKEINTRESOURCEW(IDR_PAYLOAD), RT_RCDATA);
-    if (!resource || SizeofResource(nullptr, resource) != kPayloadSize)
+const std::uint8_t* patch_bytes(WORD resource_id, const PatchData& patch) {
+    const auto resource = FindResourceW(nullptr, MAKEINTRESOURCEW(resource_id), RT_RCDATA);
+    if (!resource || SizeofResource(nullptr, resource) != patch.payload_size)
         throw PatchError{L"内置补丁资源不完整。"};
     const auto loaded = LoadResource(nullptr, resource);
     const auto data = loaded ? LockResource(loaded) : nullptr;
@@ -97,22 +123,23 @@ std::array<std::uint8_t, 32> sha256(const Bytes& data) {
     return digest;
 }
 
-fs::path write_chinese_exe(fs::path source, Bytes image, const std::uint8_t* payload) {
-    image.resize(kTargetSize);
-    for (const auto& record : kRecords) {
+fs::path write_chinese_exe(fs::path source, Bytes image, const std::uint8_t* payload,
+                           const PatchData& patch, const wchar_t* extension) {
+    image.resize(patch.target_size);
+    for (const auto& record : patch) {
         std::memcpy(image.data() + record.file_offset, payload, record.size);
         payload += record.size;
     }
-    if (sha256(image) != kTargetHash)
+    if (sha256(image) != patch.target_hash)
         throw PatchError{L"中文版 EXE 校验失败。"};
 
-    const auto target = source.replace_extension(L".zh.exe");
+    const auto target = source.replace_extension(extension);
     {
         const Handle existing(CreateFileW(target.c_str(), GENERIC_READ, FILE_SHARE_READ,
                                          nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr));
         if (existing) {
-            if (file_size_is(existing.get(), kTargetSize) &&
-                sha256(read_file(existing.get(), kTargetSize)) == kTargetHash)
+            if (file_size_is(existing.get(), patch.target_size) &&
+                sha256(read_file(existing.get(), patch.target_size)) == patch.target_hash)
                 return target;
             throw PatchError{L"同目录已有 " + target.filename().wstring() + L"。请改名后再生成。"};
         }
@@ -130,9 +157,9 @@ fs::path write_chinese_exe(fs::path source, Bytes image, const std::uint8_t* pay
         windows_error(L"无法在游戏目录创建中文版 EXE 的临时文件");
     try {
         DWORD count = 0;
-        if (!WriteFile(output.get(), image.data(), kTargetSize, &count, nullptr))
+        if (!WriteFile(output.get(), image.data(), patch.target_size, &count, nullptr))
             windows_error(L"无法写入中文版 EXE");
-        if (count != kTargetSize)
+        if (count != patch.target_size)
             throw PatchError{L"中文版 EXE 写入不完整。"};
         if (!FlushFileBuffers(output.get()))
             windows_error(L"无法完成中文版 EXE 写入");
@@ -173,11 +200,12 @@ void check_memory(HANDLE process, std::uint32_t rva, const std::uint8_t* expecte
         throw PatchError{L"启动后的游戏映像与已校验的日文 EXE 不一致。"};
 }
 
-void write_memory(HANDLE process, const PatchRecord& record, const std::uint8_t* data) {
+void write_memory(HANDLE process, const PatchRecord& record, const std::uint8_t* data,
+                  std::uint32_t extension_rva) {
     // Original image sections may be read-only or executable. The new allocation
     // stays writable until all its bytes have been copied.
     const auto target = address(record.rva);
-    const bool original_section = record.rva < kExtensionRva;
+    const bool original_section = record.rva < extension_rva;
     DWORD previous = 0;
     if (original_section && !VirtualProtectEx(process, target, record.size, PAGE_READWRITE, &previous))
         windows_error(L"无法写入游戏的初始映像");
@@ -191,7 +219,8 @@ void write_memory(HANDLE process, const PatchRecord& record, const std::uint8_t*
         windows_error(L"无法恢复游戏映像的内存权限");
 }
 
-void launch_chinese(const fs::path& source, const Bytes& original, const std::uint8_t* payload) {
+void launch_chinese(const fs::path& source, const Bytes& original, const std::uint8_t* payload,
+                    const PatchData& patch) {
     SuspendedGame game;
     STARTUPINFOW startup{};
     startup.cb = sizeof(startup);
@@ -210,24 +239,24 @@ void launch_chinese(const fs::path& source, const Bytes& original, const std::ui
     // The imported MessageBoxW name must be patched before the loader binds the IAT.
     check_memory(process, kMessageBoxThunkRva, original.data() + kMessageBoxThunkOffset, sizeof(DWORD));
 
-    const auto extension = VirtualAllocEx(process, address(kExtensionRva), kExtensionSize,
+    const auto extension = VirtualAllocEx(process, address(patch.extension_rva), patch.extension_size,
                                          MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     if (!extension)
         windows_error(L"无法为中文文本和绘字代码分配内存");
-    if (extension != address(kExtensionRva))
+    if (extension != address(patch.extension_rva))
         throw PatchError{L"汉化数据未加载到游戏使用的地址。"};
 
-    for (const auto& record : kRecords) {
+    for (const auto& record : patch) {
         if (record.rva != kDiskOnly) {
-            if (record.rva < kExtensionRva)
+            if (record.rva < patch.extension_rva)
                 check_memory(process, record.rva, original.data() + record.file_offset, record.size);
-            write_memory(process, record, payload);
+            write_memory(process, record, payload, patch.extension_rva);
         }
         payload += record.size;
     }
     DWORD ignored = 0;
-    if (!VirtualProtectEx(process, extension, kExtensionSize, PAGE_READONLY, &ignored) ||
-        !VirtualProtectEx(process, address(kCodeRva), kCodeSize, PAGE_EXECUTE_READ, &ignored))
+    if (!VirtualProtectEx(process, extension, patch.extension_size, PAGE_READONLY, &ignored) ||
+        !VirtualProtectEx(process, address(patch.code_rva), patch.code_size, PAGE_EXECUTE_READ, &ignored))
         windows_error(L"无法设置汉化数据的内存权限");
     if (!FlushInstructionCache(process, nullptr, 0))
         windows_error(L"无法刷新游戏的指令缓存");
@@ -281,12 +310,15 @@ void apply(HWND dialog, bool launch) {
     auto original = read_file(file.get(), kSourceSize);
     if (sha256(original) != kSourceHash)
         throw PatchError{unsupported};
-    const auto payload = patch_bytes();
+    const bool simplified = IsDlgButtonChecked(dialog, IDC_SIMPLIFIED) == BST_CHECKED;
+    const auto& patch = simplified ? zh_cn::kPatch : zh_tw::kPatch;
+    const auto payload = patch_bytes(simplified ? IDR_PAYLOAD_CN : IDR_PAYLOAD, patch);
     if (launch) {
-        launch_chinese(source, original, payload);
+        launch_chinese(source, original, payload, patch);
         SetDlgItemTextW(dialog, IDC_STATUS, L"中文版已启动。本次启动使用内存补丁。");
     } else {
-        const auto target = write_chinese_exe(source, std::move(original), payload);
+        const auto target = write_chinese_exe(source, std::move(original), payload, patch,
+                                              simplified ? L".zh-CN.exe" : L".zh.exe");
         const auto status = L"同目录的 " + target.filename().wstring() + L" 已就绪。";
         SetDlgItemTextW(dialog, IDC_STATUS, status.c_str());
     }
@@ -295,6 +327,7 @@ void apply(HWND dialog, bool launch) {
 INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM) {
     try {
         if (message == WM_INITDIALOG) {
+            CheckRadioButton(dialog, IDC_TRADITIONAL, IDC_SIMPLIFIED, IDC_TRADITIONAL);
             SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
             std::array<wchar_t, 32768> path{};
             const auto length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
@@ -315,6 +348,10 @@ INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM) {
             if (notification != BN_CLICKED)
                 return FALSE;
             switch (LOWORD(param)) {
+            case IDC_TRADITIONAL:
+            case IDC_SIMPLIFIED:
+                SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
+                return TRUE;
             case IDC_BROWSE:
                 browse(dialog);
                 return TRUE;

@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>First Queen IV｜Windows 版简体中文手册</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      max-width: 52rem;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+      font: 1rem/1.75 "Microsoft YaHei UI", "PingFang SC", "Noto Sans CJK SC", system-ui, sans-serif;
+    }
+    h1, h2, h3, h4 { line-height: 1.35; }
+    h1 { font-size: 2rem; margin: 0 0 .45rem; }
+    h2 { font-size: 1.45rem; margin-top: 0; }
+    h3 { font-size: 1.15rem; margin-top: 1.6rem; }
+    h4 { font-size: 1rem; margin-bottom: .35rem; }
+    p, ul, ol, dl, table { margin: .6rem 0 1rem; }
+    ul, ol { padding-inline-start: 1.4em; }
+    li + li { margin-top: .25rem; }
+    a { text-underline-offset: .15em; }
+    :target { scroll-margin-top: 1rem; }
+    .contents { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
+    section, footer { border-top: 1px solid #80808066; margin-top: 2rem; padding-top: 1.25rem; }
+    dt { font-weight: bold; margin-top: .7rem; }
+    dd { margin-inline-start: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-wrap: anywhere; }
+    th, td {
+      border-bottom: 1px solid #80808066;
+      padding: .45rem .55rem;
+      text-align: start;
+      vertical-align: top;
+    }
+    thead th { border-bottom-width: 2px; }
+    tbody th { width: 27%; }
+    kbd { font: inherit; font-weight: bold; white-space: nowrap; }
+    footer { font-size: .9rem; }
+    @media print {
+      body { max-width: none; padding: 0; }
+      h2, h3, h4 { break-after: avoid; }
+      tr { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>First Queen IV 简体中文手册</h1>
+    <p>适用于 Windows 版。菜单、人物、地名、道具与魔法沿用简体中文版的用语。</p>
+  </header>
+
+  <nav id="contents" aria-labelledby="contents-heading">
+    <h2 id="contents-heading">目录</h2>
+    <ul class="contents">
+      <li><a href="#story">故事背景</a></li>
+      <li><a href="#start">启动、读档与结束</a></li>
+      <li><a href="#progress">游戏流程与败北条件</a></li>
+      <li><a href="#windows">窗口操作</a></li>
+      <li><a href="#playing">区域地图的基本操作</a></li>
+      <li><a href="#status">状态显示</a></li>
+      <li><a href="#connections">区域连接图</a></li>
+      <li><a href="#local-menu">区域地图菜单与图标</a></li>
+      <li><a href="#world-map">世界地图操作</a></li>
+      <li><a href="#keyboard">快捷键</a></li>
+      <li><a href="#items">道具</a></li>
+      <li><a href="#spells">魔法与施法者</a></li>
+      <li><a href="#characters">登场人物</a></li>
+      <li><a href="#tips">转职、成长与招募</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="story">
+      <h2>故事背景</h2>
+      <p>希腊半岛的战争已结束二十多年。引发战乱的异世界魔王伽罗被封在地下，残留的意念却在地上四处寻找复活的机会。发现一股强大的热源后，伽罗便将濒临毁灭的身体转移过去。</p>
+      <p>洛克莉斯原由天地间的精灵统治。大陆各族的纷争暂告一段落后，人们陆续渡海来到这座富饶的岛，精灵也逐渐隐居。各国虽时常为领地起冲突，仍在合作与牵制下维持和平，并推举势力最大的波斯王塞内尔为代表。</p>
+      <p>波斯的领土从洛克莉斯中部延伸到北方。国土广大、人口较少，即使各地设有坚固的城堡和要塞，仍面临外敌入侵。塞内尔是天才科学家，也曾苦修并习得数种魔法，因而得以守住领土。</p>
+      <p>大陆渡海而来的魔法师宙出任参谋后，塞内尔性情大变。波斯的兵力突然增加，民众却纷纷逃往邻国，指控国王已将心交给魔物。波斯城传出诡异的声响，据说城里冒出的瘴气能使生灵发狂。塞内尔似乎已掌握操纵人心和用魔法造兵的方法。</p>
+      <p>诸侯匆忙加强防守，卡利恩王艾雷斯则试图刺杀塞内尔，失手被擒。波斯趁势进兵，吞并卡利恩的领地。神秘人击倒狱卒、解开牢门，教艾雷斯驾驭铁嘴神鹰，让他得以逃回卡利恩城。</p>
+      <p>艾雷斯的恋人爱伦是一名勇敢的战士。她听说艾雷斯被捕，立即离城营救。艾雷斯回来后，没有人知道她的下落。城中只剩少数守军，多数部队似乎已败在波斯军手下。艾雷斯号召诸侯起兵反抗时，许多领主已归附波斯。敌军攻破卡利恩在泰纳里斯河畔的要塞，渡河逼近城下。</p>
+
+      <h3>各国动向</h3>
+      <dl>
+        <dt>慕尼顿</dt>
+        <dd>海盗据守的水上要塞都市，趁乱出兵普莱一带，企图扩张领地。</dd>
+        <dt>格林斯</dt>
+        <dd>矿山国沿山区进军，控制了采矿聚落达宾村。</dd>
+        <dt>贝尼库</dt>
+        <dd>水上城堡贝尼库从大陆带来大鳄鱼部队以增强兵力，率先攻下普莱村。</dd>
+        <dt>萨内多</dt>
+        <dd>精灵之国与波斯订有互不侵犯协定，默许波斯军借道。雷斯达入侵后，萨内多派兵到肯特以北与其对峙。</dd>
+        <dt>雷斯达</dt>
+        <dd>森林国为夺取精灵领地，进入肯特以北，同时出兵休利亚。休利亚堡垒仍然守住了。</dd>
+        <dt>休利亚</dt>
+        <dd>平原国依先王遗命加强防守，拒绝与各国缔约。雷斯达屡次进犯休利亚堡垒，皆由王子杰兰率军守下。</dd>
+      </dl>
+    </section>
+
+    <section id="start">
+      <h2>启动、读档与结束</h2>
+      <h3>启动菜单</h3>
+      <p>启动游戏后，在「FQ4 启动菜单」设置画面与音效，选「开始」播放片头。开场影片可按 <kbd>Enter</kbd> 或鼠标左键略过。</p>
+      <dl>
+        <dt>画面模式</dt>
+        <dd>「窗口模式」以 640 × 480 启动，之后可调整大小。选「全屏模式」时，可在右侧下拉菜单指定分辨率。</dd>
+        <dt>音效设置</dt>
+        <dd>可选「关闭音效」、「开启音效，关闭特效」或「开启音效与特效」。此处也能调整「背景音乐音量」与「效果音音量」，可先试听默认音量。音效特效可能增加 CPU 负荷。原版以 DirectX 9.0 的音频组件播放音效。若遇到音效兼容性问题，可先关闭特效，或选「关闭音效」。</dd>
+        <dt>重置游戏内窗口</dt>
+        <dd>启动时恢复游戏内的默认窗口配置。缩小分辨率后若有窗口移出可操作范围，可使用此选项。</dd>
+        <dt>停用透明混合</dt>
+        <dd>以不透明方式绘制原本半透明的画面。游戏变慢时，可试着停用透明混合或缩小窗口、降低全屏分辨率。</dd>
+      </dl>
+
+      <h3>开始新游戏或继续游戏</h3>
+      <p>在标题画面选「新游戏」，再选难度。新游戏的开场事件会自动进行，按 <kbd>Enter</kbd> 或鼠标左键可继续对话。选「继续游戏」可从存档列表加载进度。</p>
+      <table aria-label="游戏难度">
+        <thead><tr><th scope="col">难度</th><th scope="col">效果</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">无参战</th><td>敌军强度与「普通」相同，敌军不会请求援军。</td></tr>
+          <tr><th scope="row">新手</th><td>敌军比「普通」弱。</td></tr>
+          <tr><th scope="row">普通</th><td>标准敌军强度。</td></tr>
+          <tr><th scope="row">熟练</th><td>敌军比「普通」强。</td></tr>
+          <tr><th scope="row">苦斗</th><td>Windows v1.10 菜单中的额外难度。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>结束游戏</h3>
+      <p>进入「营地」，在世界地图选「结束游戏」，再选「是」。也可以按 <kbd>Alt</kbd> + <kbd>F4</kbd>，或在窗口模式按右上角的关闭按钮。</p>
+    </section>
+
+    <section id="progress">
+      <h2>游戏流程与败北条件</h2>
+      <p>指挥数支部队向敌方据点推进。剧情推进时会有角色和部队加入，也可通过「外交」争取中立国。部队在<a href="#world-map">世界地图</a>设置目的地，再用「推进时间」推进。进入<a href="#playing">区域地图</a>后，改用鼠标或键盘直接控制角色。</p>
+      <p>战斗时可利用地形优势、属性克制和魔法。一次战斗最多可派两支我方部队，依照疲劳情况轮换。视战况派一支部队也可作战，还能用特定魔法或道具召唤助力。</p>
+      <p>艾雷斯死亡，或敌军攻入卡利恩城时，游戏结束。主线没有通关必备道具，持有道具的队员阵亡后仍可继续剧情。</p>
+    </section>
+
+    <section id="windows">
+      <h2>窗口操作</h2>
+      <p>主窗口会跟随正在操控的角色，并一直开启。也可从主菜单开启<a href="#subwindows">辅助窗口</a>，查看各处战况。危险窗口可用鼠标直接操控其中的角色。</p>
+      <ul>
+        <li><strong>调整大小。</strong>用鼠标左键拖动窗口左下或右下角的小方块。缩小主窗口可露出后方的个人状态栏，也可加快最高速时的画面更新。</li>
+        <li><strong>移动窗口。</strong>拖动窗口左上角的小方块，放开即可固定位置。</li>
+        <li><strong>切换前后顺序。</strong>按一下露在外面的窗口，可将它移到最上层。在地图画面按鼠标右键可轮换重叠顺序。</li>
+        <li><strong>关闭辅助窗口。</strong>按窗口框右上角的 ×。</li>
+      </ul>
+    </section>
+
+    <section id="playing">
+      <h2>区域地图的基本操作</h2>
+      <p>取得艾雷斯的控制权后便可开始行动。平时画面只显示队长。遇敌时队员自行作战，结束后回到队长身边。角色与敌人相邻时会自动交战。开启「自动战斗」后，正在操控的角色也会自行追击敌人。</p>
+
+      <h3>移动和切换角色</h3>
+      <ul>
+        <li>把鼠标光标移向窗口中央角色的上、下、左或右方，按住左键带动角色。键盘可用数字键盘的 <kbd>8</kbd>、<kbd>2</kbd>、<kbd>4</kbd>、<kbd>6</kbd> 分别向四个方向移动。</li>
+        <li>对状态栏中某名角色的 HP 或 ST 按鼠标右键，即可接手操控。也可按 <kbd>←</kbd> 或 <kbd>→</kbd> 选人，再按 <kbd>Enter</kbd> 确定。HP 数字以黑底白字显示，代表当前操控的角色。角色陷入危险时，HP 数字会变色。</li>
+        <li>两支我方部队同时在场时，可按 <kbd>↑</kbd> 或上方的「切换部队」图标。要让另一支部队离开地图，先切换过去，再操控队长走向出口。</li>
+      </ul>
+
+      <h3>射箭、施法与使用道具</h3>
+      <p>操控有相应能力的角色，按 <kbd>Space</kbd> 或在角色身上按鼠标左键，即可射箭、施放<a href="#select-magic">选定的魔法</a>或使用主动道具。如果角色既能射箭或施法，又持有可主动使用的道具，优先使用道具。多数道具只要持有就会生效，其他角色也会自行射箭或施法。</p>
+
+      <h3>下马</h3>
+      <p>骑马的角色可能进不了建筑或狭窄通道。可按上方的「特殊指令」图标并选「下马」，也可按 <kbd>↓</kbd>，再选「执行」。在当前地图下马后，换到另一张地图才会恢复骑乘。建筑内须徒步行动。</p>
+
+      <h3>离开区域</h3>
+      <p>多数区域可从上边缘或下边缘离开。通常要操控队长走到出口。没有敌军时，画面会提示「进入营地」并返回世界地图。战斗中离开可能会把遇险的队员留在战场上。看到警告时可用 <kbd>Esc</kbd>、数字键盘 <kbd>0</kbd> 或鼠标右键取消，掉队的队员有时会在别处重逢。</p>
+      <p>出口通往哪一区由当前地图决定。战斗结束时，仍留在场上的参战部队会返回原区域。探索时也可调查门和洞窟入口，或从人物对话取得线索。</p>
+
+      <h3>操作菜单和对话</h3>
+      <p>在区域地图按 <kbd>Home</kbd> 开启主菜单。将鼠标移到项目上会移动手指光标，再按左键确定。键盘可用数字键盘的 <kbd>8</kbd>、<kbd>2</kbd> 上下选择，再按 <kbd>Enter</kbd> 确定。能取消的画面可按 <kbd>Esc</kbd>、数字键盘 <kbd>0</kbd> 或鼠标右键。</p>
+    </section>
+
+    <section id="status">
+      <h2>状态显示</h2>
+      <p>状态栏位于游戏窗口后方。缩小主窗口即可显示状态栏。拖动字段名称可以重新排列，按住 <kbd>Ctrl</kbd> 拖动可微调位置。带有 <strong>C</strong> 标记的是正在操控的部队。对角色的 HP 或 ST 按鼠标右键可切换操控对象。</p>
+      <p>在「系统」的「状态显示设置」中，选「操控部队设置」或「非操控部队设置」，再选择需要显示的字段。</p>
+      <table aria-label="区域地图状态栏">
+        <thead><tr><th scope="col">字段</th><th scope="col">含义</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">HP</th><td>当前生命力，降到 0 时角色死亡。</td></tr>
+          <tr><th scope="row">ST</th><td>状态图标，包括一般、阵亡、追击、攻击、撤退、中毒、石化、混乱和停止。旁边的 ＋ 表示角色受到地形加成（GE）。</td></tr>
+          <tr><th scope="row">ITEM</th><td>道具图标。</td></tr>
+          <tr><th scope="row">LV</th><td>等级。</td></tr>
+          <tr><th scope="row">MXHP</th><td>最大生命力。</td></tr>
+          <tr><th scope="row">NAME</th><td>姓名简写，最左边是队长。简体版的状态栏最多显示两个完整汉字，可在世界地图的「资料」查看全名。</td></tr>
+          <tr><th scope="row">AT／AR</th><td>攻击力／攻击率。</td></tr>
+          <tr><th scope="row">DF／DR</th><td>防御力／防御率。</td></tr>
+          <tr><th scope="row">AD／AA</th><td>箭矢防御／箭矢闪避。</td></tr>
+          <tr><th scope="row">MD</th><td>魔法防御力。</td></tr>
+          <tr><th scope="row">FT</th><td>以蓝字显示的疲劳值。数值越高，战斗能力越低。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="connections">
+      <h2>区域连接图</h2>
+      <p>区域之间的连接方式可在游戏地图上查看。</p>
+    </section>
+
+    <section id="local-menu">
+      <h2>区域地图菜单与图标</h2>
+      <p><kbd>Home</kbd> 开启主菜单。菜单上方显示当前操控部队的队长姓名。按 <kbd>F12</kbd>，或在画面空白的黑色区域按鼠标右键，可切换左上方的指令图标。用 <kbd>Esc</kbd>、数字键盘 <kbd>0</kbd> 或鼠标右键关闭菜单。</p>
+      <p><a href="#orders">部队指令</a> · <a href="#switch">切换部队</a> · <a href="#formation">阵型</a> · <a href="#markers">标记</a> · <a href="#subwindows">窗口</a> · <a href="#system">系统</a> · <a href="#select-magic">魔法选择</a> · <a href="#reinforcements">请求援军</a> · <a href="#camp">营地</a></p>
+
+      <h3 id="orders">部队指令</h3>
+      <p>可向当前场上的第一部队，以及以增援身份到场的第二部队下令。正在生效的指令会反映在图标上。</p>
+      <table aria-label="部队指令">
+        <thead><tr><th scope="col">指令</th><th scope="col">部队行动</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">一般指令</th><td>维持以队长为中心的阵型，遭攻击时应战。</td></tr>
+          <tr><th scope="row">攻击指令</th><td>各队员主动前往迎敌。队员陷入危险时仍可能自行撤退。</td></tr>
+          <tr><th scope="row">撤退指令</th><td>朝部队进入这张地图的方向撤退。按住 <kbd>Shift</kbd> 也能暂时下达此指令。要撤离地图，须亲自操控队长走过出口。</td></tr>
+          <tr><th scope="row">停止指令</th><td>暂停未受玩家操控的队员。</td></tr>
+        </tbody>
+      </table>
+      <p>上表四项指令同时只有一项生效，效力限于当前区域。进入新区域时，默认采用「攻击指令」。召唤角色自行行动。</p>
+      <h4>特殊指令</h4>
+      <ul>
+        <li>「下马」让骑乘成员在当前地图徒步行动。</li>
+        <li>「丢弃弓箭」可提高部分弓手的攻击和防御。弃弓后须到武器店通过转职取回弓箭。</li>
+        <li>「交涉」可在战况非常有利或不利时尝试。部队需要具备交涉能力的成员。若交涉成功，可能有机会安全撤退。每场战斗最多交涉一次。</li>
+      </ul>
+
+      <h3 id="switch">切换部队</h3>
+      <p>两支我方部队在同一张地图时，可选「切换部队」或按 <kbd>↑</kbd> 更换操控对象。换过去的部队会取得状态栏的 C 标记。两支部队的第一、第二部队身份照旧。</p>
+
+      <h3 id="formation">阵型</h3>
+      <p>用「阵型」菜单或图标设置部队移动时的排列。「阵型１」、「阵型２」、「阵型３」是默认战斗阵型。「一列阵型」让队员排在队长身后。「自定义」使用已保存的排列。</p>
+      <p>要建立自定义阵型，在安全处下达「停止指令」，逐一操控角色站位，再选「自定义阵型」。自定义阵型不会写入存档。</p>
+
+      <h3 id="markers">标记</h3>
+      <p>选「标记」或对应图标后，可用「标记队长」标出当前操控的角色，或选「标记全员」标出所有友军。选「清除标记」可清除标记。</p>
+
+      <h3 id="subwindows">窗口</h3>
+      <p>选「窗口」或对应图标，再指定要「开启」或「关闭」的窗口。编号显示在窗口边框的左上角。初次开启的辅助窗口会缩小显示在左侧，可用鼠标调整位置和大小。</p>
+      <table aria-label="区域地图辅助窗口">
+        <thead><tr><th scope="col">编号与设置</th><th scope="col">追踪对象</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">1　非操控部队设置</th><td>跟随当前未操控的我方部队队长。</td></tr>
+          <tr><th scope="row">2　敌军窗口设置</th><td>跟随敌军队长。</td></tr>
+          <tr><th scope="row">3　危险窗口设置</th><td>追踪濒危的我方角色。可用鼠标就地操控。</td></tr>
+          <tr><th scope="row">4　自由窗口设置</th><td>查看地图中指定的位置。</td></tr>
+        </tbody>
+      </table>
+      <p>前 3 种窗口在没有追踪对象时会显示「待命中」。</p>
+
+      <h3 id="system">系统</h3>
+      <ul>
+        <li>「状态显示设置」控制主窗口后方显示哪些状态栏字段。「状态位置设置」可调整状态配置，「生命力显示方式」可选「数字显示」或「条形显示」。</li>
+        <li>「游戏速度设置」可调整行动和动画速度，从慢速、普通到快速。按住 <kbd>Ctrl</kbd> 时会暂时以最高速执行。</li>
+        <li>「自动战斗」开启后，当前操控的角色也会自行作战。</li>
+        <li>「初始部队指令」可预先指定进入区域时的部队行动。</li>
+      </ul>
+
+      <h3 id="select-magic">魔法选择</h3>
+      <p>先切换到有魔法能力的角色，再选「魔法选择」、按对应图标或按 <kbd>F3</kbd>。选好后，按 <kbd>Space</kbd> 或在角色身上按鼠标左键施法。卡鲁也在这里更换兽衣。</p>
+
+      <h3 id="reinforcements">请求援军</h3>
+      <p>当交战区域或邻近区域有可用的友军，而且场上只有一支我方部队时，可从列表选出援军。选中的部队会以第二部队身份加入战斗。已撤离的部队仍可再次请求增援。</p>
+
+      <h3 id="camp">营地</h3>
+      <p>可扎营时，使用「营地」菜单、图标或 <kbd>F1</kbd> 返回世界地图。没有敌军时，从地图的上边缘或下边缘离开也能返回。回到世界地图后，可以移动其他部队，也可以存档。</p>
+      <p>扎营须等战斗结束，并离开城堡、屋内、地下城等内部区域。</p>
+    </section>
+
+    <section id="world-map">
+      <h2>世界地图操作</h2>
+      <p><a href="#time">推进时间</a> · <a href="#move">部队移动</a> · <a href="#explore">探索</a> · <a href="#diplomacy">外交</a> · <a href="#roster">编制</a> · <a href="#information">资料</a> · <a href="#power-map">势力图</a> · <a href="#save">记录与结束游戏</a></p>
+      <p>在菜单和区域图标以外的地图空白处按住鼠标左键，可向该方向滚动。也可按住任一方向键，同时按数字键盘的 <kbd>8</kbd>、<kbd>2</kbd>、<kbd>4</kbd> 或 <kbd>6</kbd> 滚动。同时按住 <kbd>Ctrl</kbd> 可加快滚动。</p>
+      <p>把光标移到区域上，右下方会显示地名。若有部队驻扎，按左键可查看部队列表和战力。战力依人数、士兵强度和武器计算。敌军图标朝前，友军朝后，中立部队朝侧面。</p>
+
+      <h3 id="time">推进时间</h3>
+      <p>每执行一次「推进时间」，敌我部队会交替行动。已设置目的地的部队会向目的地前进一格，所有部队的疲劳都会略微恢复。进入城堡或要塞，或与敌军相遇而开战时，画面会切换到区域地图。</p>
+
+      <h3 id="move">部队移动</h3>
+      <ol>
+        <li>选「部队移动」，再从列表选择部队。鼠标光标下方会出现旗帜。</li>
+        <li>在世界地图上点击目的地。左上方会显示所选地名，若有敌军也会列出其队长和战力。</li>
+        <li>按鼠标左键或右键开启「确认目的地」，再选「确定」。</li>
+        <li>选「推进时间」，让部队开始前进。</li>
+      </ol>
+      <p>要清除原有目的地，可再次选择同一部队，在设置目的地时取消。</p>
+
+      <h3 id="explore">探索</h3>
+      <p>在世界地图选「探索」，再选一支我方部队，即可进入该部队所在的区域。要探索其他地方，先让部队抵达。进入区域后，左上角会显示部队名称。</p>
+      <p>部队行军时可能经过重要地点。使用「探索」才能发现部分村镇、洞窟、队友、怪物和宝藏。探索也能提升等级并积累军费。想挑战用更短时间击败敌军，也可以少做探索。要回到世界地图，使用「营地」。</p>
+
+      <h3 id="diplomacy">外交</h3>
+      <p>选「外交」，先指定出使的部队，再选外交对象。范围包括部分城堡，以及我方部队所在区域邻近的中立部队或敌军。出使人物和时机都可能改变交涉结果。</p>
+      <p>直接用「部队移动」进入他国领土，可能使中立国转为敌对。可以观察守卫的反应，再决定如何接触。</p>
+
+      <h3 id="roster">编制</h3>
+      <p>「编制」可以调动队员、建立部队、解雇队员和交换道具。队员姓名前有头盔标记，表示具备领导能力。每支部队最左侧的成员是队长，由缺乏领导能力的人担任队长会使部队变弱。艾雷斯的位置固定。最多可编制 20 支部队。</p>
+
+      <h4>交换队员或更改顺序</h4>
+      <ol>
+        <li>选第一部队，再从同区域的部队中选第二部队。只要调整同一支部队的顺序时，第一、第二部队都选该部队。</li>
+        <li>用鼠标或数字键盘选一名队员。反向的手指光标会标出已选位置。</li>
+        <li>选另一名队员以交换位置，或选部队最右侧的空格将人移入。两支部队同时显示时，也能在其中一支部队内调整顺序。</li>
+      </ol>
+
+      <h4>建立部队</h4>
+      <p>第一部队选要拆分的部队，第二部队选「新部队」，再依交换队员的方式将人移入。</p>
+
+      <h4>解雇队员</h4>
+      <ol>
+        <li>第一部队选要调整的部队，第二部队选「解雇」。</li>
+        <li>将要解雇的队员移到下方列表。</li>
+        <li>按 <kbd>Esc</kbd>、数字键盘 <kbd>0</kbd> 或鼠标右键开启确认窗口，再选「解雇」。</li>
+      </ol>
+
+      <h4>装备、交换与卸下道具</h4>
+      <ul>
+        <li>先选要调整的部队，再选「ITEM BOX」开启道具箱。</li>
+        <li>选一名队员时，反向的手指光标会标出该队员。再选另一名队员可交换道具，或选道具箱内的道具来装备。选中的道具名称会以绿字显示。</li>
+        <li>选队员和「卸下」，可将装备放回道具箱。其他区域的部队也能通过同一个道具箱取用。</li>
+        <li>未鉴定的道具会显示「道具效果不明」。可到有鉴定师的魔法店查明效果。</li>
+      </ul>
+
+      <h3 id="information">资料</h3>
+      <p>「资料」列出每支部队的队长、成员数、战力和所在区域。选一支部队可查看成员明细。排在第一位的是队长，头盔标记表示该成员具备领导能力。</p>
+      <table aria-label="部队成员资料">
+        <thead><tr><th scope="col">字段</th><th scope="col">含义</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">NAME</th><td>成员姓名。</td></tr>
+          <tr><th scope="row">CLASS</th><td>职业。部分成员可转职。</td></tr>
+          <tr><th scope="row">LV</th><td>等级，上限 99。成员加入时可能已有一定等级。</td></tr>
+          <tr><th scope="row">HP</th><td>生命力，上限 999。越高就越能承受伤害。</td></tr>
+          <tr><th scope="row">HR</th><td>生命力恢复率，上限 16。数值越高，恢复越快。</td></tr>
+          <tr><th scope="row">AT</th><td>攻击力，上限 99。数值越高，攻击造成的伤害越大。</td></tr>
+          <tr><th scope="row">AR</th><td>攻击率，上限 99。数值越高，攻击越容易成功。</td></tr>
+          <tr><th scope="row">DF</th><td>防御力，上限 99。数值越高，所受伤害越少。</td></tr>
+          <tr><th scope="row">DR</th><td>防御率，上限 99。数值越高，越不容易被敌人击中。</td></tr>
+          <tr><th scope="row">AD</th><td>箭矢防御，上限 40。数值越高，箭矢造成的伤害越少。</td></tr>
+          <tr><th scope="row">AA</th><td>箭矢闪避，上限 16。数值越高，越容易避开箭矢。</td></tr>
+          <tr><th scope="row">MD</th><td>魔法防御力，上限 40。数值越高，所受魔法伤害越少。</td></tr>
+          <tr><th scope="row">FT</th><td>疲劳值，上限 99。疲劳会降低 AT、AR、DF、DR 等能力。在旅店休息可大幅降低疲劳，执行「推进时间」可少量降低疲劳。</td></tr>
+          <tr><th scope="row">GE</th><td>地形效果。显示 ＋ 时，表示该角色能在当前地形发挥较强的战力。</td></tr>
+          <tr><th scope="row">ITEM</th><td>持有的道具。</td></tr>
+          <tr><th scope="row">EL+</th><td>强属性。F、E、A、W 分别代表擅长抵抗火、土、风、水属性。</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="power-map">势力图</h3>
+      <p>选「势力图」后，世界地图左上会出现小地图。白色方框标示当前的可见范围。拖动方框或直接点击小地图，即可滚动世界地图。势力图也会标出各国派出的部队数与分布位置。</p>
+      <table aria-label="势力图国家颜色">
+        <thead><tr><th scope="col">势力</th><th scope="col">颜色</th><th scope="col">关系</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">卡利恩</th><td>白色</td><td>艾雷斯治理的国家。卡利恩城位于最南端，失守即败北。</td></tr>
+          <tr><th scope="row">波斯</th><td>红色</td><td>主要敌国，控制中部至北方的大片领土，军队已渡河逼近卡利恩城。</td></tr>
+          <tr><th scope="row">休利亚</th><td>黄色</td><td>中立，守住屡遭雷斯达进攻的休利亚堡垒。</td></tr>
+          <tr><th scope="row">慕尼顿</th><td>蓝色</td><td>中立，出兵普莱一带。</td></tr>
+          <tr><th scope="row">格林斯</th><td>绿色</td><td>中立，已控制达宾村。</td></tr>
+          <tr><th scope="row">萨内多</th><td>浅蓝色</td><td>中立，在肯特以北与雷斯达对峙。</td></tr>
+          <tr><th scope="row">雷斯达</th><td>粉红色</td><td>中立，向萨内多及休利亚用兵。</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="save">记录与结束游戏</h3>
+      <p>在营地的世界地图选「记录」，再选存档槽位。要离开游戏，选「结束游戏」并确认。</p>
+    </section>
+
+    <section id="keyboard">
+      <h2>快捷键</h2>
+      <p>数字方向键指键盘右侧的数字键盘，方向键则指独立的箭头键。</p>
+      <table aria-label="键盘快捷键">
+        <thead><tr><th scope="col">按键</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">数字键盘 <kbd>2</kbd>、<kbd>4</kbd>、<kbd>6</kbd>、<kbd>8</kbd></th><td>移动角色或选择项目。</td></tr>
+          <tr><th scope="row"><kbd>Space</kbd></th><td>使用主动道具、射箭或施法。</td></tr>
+          <tr><th scope="row"><kbd>Enter</kbd></th><td>确定选项或继续对话。</td></tr>
+          <tr><th scope="row"><kbd>Home</kbd></th><td>开启区域地图主菜单。</td></tr>
+          <tr><th scope="row"><kbd>Esc</kbd>、数字键盘 <kbd>0</kbd></th><td>取消选取或关闭菜单。</td></tr>
+          <tr><th scope="row"><kbd>Ctrl</kbd></th><td>按住时略过速度等待，以最高速执行。</td></tr>
+          <tr><th scope="row"><kbd>Tab</kbd></th><td>第一部队在「一列阵型」与原阵型间切换。第二部队依「阵型１」→「阵型２」→「阵型３」→「自定义」循环。</td></tr>
+          <tr><th scope="row"><kbd>←</kbd>、<kbd>→</kbd></th><td>选择要操控的角色，再按 <kbd>Enter</kbd> 确定。</td></tr>
+          <tr><th scope="row"><kbd>↑</kbd></th><td>切换操控部队。</td></tr>
+          <tr><th scope="row"><kbd>↓</kbd></th><td>开启「下马」选项。</td></tr>
+          <tr><th scope="row"><kbd>Shift</kbd></th><td>按住时暂时下达「撤退指令」。</td></tr>
+          <tr><th scope="row"><kbd>F1</kbd></th><td>进入营地。</td></tr>
+          <tr><th scope="row"><kbd>F3</kbd></th><td>开启「魔法选择」。</td></tr>
+          <tr><th scope="row"><kbd>F12</kbd></th><td>显示或隐藏指令图标。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="items">
+      <h2>道具</h2>
+      <p>有些魔法店设有鉴定师。鉴定过的道具可在营地用「编制」开启道具箱，查看其效果。「道具效果不明」表示尚未鉴定。</p>
+      <p>道具分为持有即生效，以及需要操作才能生效的类型。要主动使用道具，操控持有者后按 <kbd>Space</kbd>，或在角色身上按鼠标左键。相同召唤角色已在场时，再用道具也无法召唤同一角色。</p>
+      <table aria-label="原手册列出的道具">
+        <thead><tr><th scope="col">使用后的状态</th><th scope="col">道具</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">使用后消耗</th><td>复活药、体力恢复药、消除疲劳药、解毒药、石化解除药、眼药、巴克斯之酒、人参精、爆裂之石、黑暗之石、弓箭车。</td></tr>
+          <tr><th scope="row">使用后保留</th><td>闪电之剑、炽热之剑、精灵之笛、天使之笛、吸血之笛、地之警笛、水之警笛、风之警笛、神之号角、贝壳、光之石、炎之石、闪电之石、冰的结晶。</td></tr>
+        </tbody>
+      </table>
+      <p>要把道具交给其他区域的我方部队，可先存入道具箱，再由对方取出。</p>
+    </section>
+
+    <section id="spells">
+      <h2>魔法与施法者</h2>
+      <p>只有具备施法能力的角色才能使用魔法店出售的魔法。有些角色一开始就会特定魔法或能力。先操控施法者，在「魔法选择」指定要用的魔法，再按 <kbd>Space</kbd> 或在角色身上按鼠标左键。各角色会哪些魔法，可以在加入后确认。</p>
+
+      <h3>魔法效果</h3>
+      <table aria-label="魔法效果">
+        <thead><tr><th scope="col">魔法</th><th scope="col">效果</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">召唤死者、召唤精灵、召唤天使</th><td>召唤数名对应的角色。日文版的「死神召喚」与「死者召喚」在简体版中均显示为「召唤死者」。</td></tr>
+          <tr><th scope="row">分身</th><td>召唤与自己相同的角色。</td></tr>
+          <tr><th scope="row">火炎</th><td>放出火焰，对水属性有效。</td></tr>
+          <tr><th scope="row">龙卷风</th><td>放出旋风，对土属性有效。</td></tr>
+          <tr><th scope="row">地震</th><td>引发地震。</td></tr>
+          <tr><th scope="row">冰刀波</th><td>放出冰，对火属性有效。</td></tr>
+          <tr><th scope="row">雷鸣</th><td>落雷攻击，对风属性有效。</td></tr>
+          <tr><th scope="row">导向火球</th><td>放出拖着火尾、会追踪敌人的火球。</td></tr>
+          <tr><th scope="row">防护火网</th><td>让火球绕着自己旋转。</td></tr>
+          <tr><th scope="row">不死鸟</th><td>放出火鸟。</td></tr>
+          <tr><th scope="row">爆裂术</th><td>引发爆裂，对水属性有全体效果。</td></tr>
+          <tr><th scope="row">暴风雪</th><td>降下冰雪，对火属性有全体效果。</td></tr>
+          <tr><th scope="row">魔星</th><td>光系魔法，对土、风属性有全体效果。</td></tr>
+          <tr><th scope="row">替身</th><td>变成身边角色的模样。</td></tr>
+          <tr><th scope="row">化石术</th><td>让自己变成石头。</td></tr>
+          <tr><th scope="row">烟幕</th><td>藏入烟雾中。</td></tr>
+          <tr><th scope="row">解毒</th><td>立刻解除中毒。</td></tr>
+          <tr><th scope="row">石化解除</th><td>立刻解除石化。</td></tr>
+          <tr><th scope="row">魔法壁</th><td>张开防护屏障。</td></tr>
+          <tr><th scope="row">蜘蛛丝</th><td>阻止对手移动。</td></tr>
+          <tr><th scope="row">毒雾</th><td>使对手中毒。</td></tr>
+          <tr><th scope="row">石化</th><td>使画面内的敌人有概率被石化。</td></tr>
+          <tr><th scope="row">混乱</th><td>使敌人彼此攻击。</td></tr>
+          <tr><th scope="row">读心术</th><td>查看敌方状态。</td></tr>
+          <tr><th scope="row">战线脱离</th><td>角色遇险时传送。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>施法者</h3>
+      <p>原手册列出以下施法者。能否加入我方取决于剧情与交涉。</p>
+      <table aria-label="施法者名单">
+        <thead><tr><th scope="col">角色</th><th scope="col">身份</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">艾雷斯</th><td>卡利恩王，转职后可施法。</td></tr>
+          <tr><th scope="row">卡拉</th><td>魔法师的弟子。</td></tr>
+          <tr><th scope="row">施奇</th><td>祈祷师。</td></tr>
+          <tr><th scope="row">雷克斯</th><td>休利亚王子。</td></tr>
+          <tr><th scope="row">欧里巴</th><td>雷斯达军师。</td></tr>
+          <tr><th scope="row">罗拉</th><td>格林斯神官。</td></tr>
+          <tr><th scope="row">伊索鲁迪</th><td>波斯军的魔女。</td></tr>
+          <tr><th scope="row">比尔波斯</th><td>特拉斯族的队长。</td></tr>
+          <tr><th scope="row">尼米</th><td>水之妖精王。</td></tr>
+          <tr><th scope="row">波路堤斯</th><td>风之妖精王。</td></tr>
+          <tr><th scope="row">弗瑞亚</th><td>土之妖精王。</td></tr>
+          <tr><th scope="row">赫尔格</th><td>贝尼库王。</td></tr>
+          <tr><th scope="row">伊鲁兰斯</th><td>精灵魔法师。</td></tr>
+          <tr><th scope="row">亚鲁新普</th><td>神父。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>角色的特殊能力</h3>
+      <p>下列角色以自己的特殊能力行动，无法在魔法店添购魔法。游戏中还有其他具备特殊能力的角色。</p>
+      <table aria-label="角色的特殊能力">
+        <thead><tr><th scope="col">角色</th><th scope="col">能力</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">卡鲁</th><td>可在「魔法选择」更换兽衣，改变自身能力。</td></tr>
+          <tr><th scope="row">阿波罗</th><td>诗人，以不同的歌支援队伍。</td></tr>
+          <tr><th scope="row">特拉斯族</th><td>能得知敌人的能力。</td></tr>
+          <tr><th scope="row">格雷</th><td>遇险时可瞬间转移。</td></tr>
+          <tr><th scope="row">杜拉克</th><td>挥舞有特殊力量的鞭子。</td></tr>
+          <tr><th scope="row">克莉斯丁</th><td>护士，能在战场上治疗同伴。</td></tr>
+          <tr><th scope="row">凯西</th><td>似乎擅长偷取物品。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="characters">
+      <h2>登场人物</h2>
+
+      <h3>卡利恩及援军</h3>
+      <dl>
+        <dt>艾雷斯</dt><dd>卡利恩的年轻国王，也是故事的主角。</dd>
+        <dt>爱伦</dt><dd>艾雷斯的恋人，勇敢的战士。</dd>
+        <dt>孔莱多</dt><dd>卡利恩老将。</dd>
+        <dt>莱姆拉克</dt><dd>卡利恩的军师，在对波斯作战时失踪。</dd>
+        <dt>耶克达</dt><dd>卡利恩的武将，也在对波斯作战时失踪。</dd>
+        <dt>阿鲁富特</dt><dd>希腊半岛女王艾拉之子，得知洛克莉斯陷入危机后赶来支援。</dd>
+        <dt>罗夫</dt><dd>希腊半岛弗兰克王国的老将。</dd>
+        <dt>基尔汉</dt><dd>罗夫的儿子，勇猛过人，做事有些冒失。</dd>
+        <dt>利斯莱姆</dt><dd>罗夫的同僚，是一位豪杰。</dd>
+      </dl>
+
+      <h3>精灵王</h3>
+      <dl>
+        <dt>尼米</dt><dd>水之妖精王，也是洛克莉斯众妖精的女王。</dd>
+        <dt>费里尔</dt><dd>森林妖精王，似乎身体欠佳。</dd>
+        <dt>波路堤斯</dt><dd>统领风之妖精。</dd>
+        <dt>弗瑞亚</dt><dd>土之妖精王，与土精灵一同生活。</dd>
+      </dl>
+
+      <h3>萨内多</h3>
+      <dl>
+        <dt>伊尔克特</dt><dd>萨内多的精灵王，正与雷斯达交战。</dd>
+      </dl>
+
+      <h3>雷斯达</h3>
+      <dl>
+        <dt>欧鲁特</dt><dd>势力强大的雷斯达国王。</dd>
+        <dt>欧里巴</dt><dd>懂得施法的军师。</dd>
+        <dt>多古太夫</dt><dd>体力出众的武将。</dd>
+        <dt>安</dt><dd>擅长用剑的女战士。</dd>
+      </dl>
+
+      <h3>格林斯</h3>
+      <dl>
+        <dt>马帝斯</dt><dd>山国格林斯的国王，拿女儿们没办法。</dd>
+        <dt>弗里森</dt><dd>格林斯勇敢的公主。</dd>
+        <dt>雪尔维亚</dt><dd>喜爱冒险，常到外地走动的公主。</dd>
+        <dt>阿波罗</dt><dd>歌声据说具有神秘力量的诗人。</dd>
+        <dt>格雷</dt><dd>顽固的老军师。</dd>
+      </dl>
+
+      <h3>休利亚</h3>
+      <dl>
+        <dt>雷克斯</dt><dd>年长的王子，先王去世后仍未继位。</dd>
+        <dt>杰兰</dt><dd>弟弟，是位勇敢的骑士。</dd>
+        <dt>兰米</dt><dd>休利亚的军师。</dd>
+      </dl>
+
+      <h3>慕尼顿</h3>
+      <dl>
+        <dt>欧纳斯</dt><dd>慕尼顿国王，对外敌意强烈。</dd>
+        <dt>哥伦哥</dt><dd>个性有些古怪的战士。</dd>
+        <dt>曼克丝</dt><dd>慕尼顿的武将。</dd>
+      </dl>
+
+      <h3>马尔顿、里美利克、诺福克瀑布与萨姆</h3>
+      <dl>
+        <dt>杜鲁童</dt><dd>马尔顿的土精灵之王。</dd>
+        <dt>伊克利福</dt><dd>里美利克的特达罗之王，统领半人半兽的族人。</dd>
+        <dt>克莱茵</dt><dd>住在诺福克瀑布的特拉斯族之王。</dd>
+        <dt>科来安</dt><dd>萨姆的哥布林王，心思难以捉摸。</dd>
+      </dl>
+
+      <h3>波斯军</h3>
+      <dl>
+        <dt>塞内尔</dt><dd>造出人造人并借此壮大军力的波斯国王。</dd>
+        <dt>宙</dt><dd>从大陆渡海而来的魔法师。</dd>
+        <dt>伊索鲁迪</dt><dd>据说是波斯最强的魔女。</dd>
+        <dt>亚兰贝</dt><dd>波斯军的副将。</dd>
+      </dl>
+      <h4>波斯四将</h4>
+      <p>四人都得到塞内尔以魔法赋予的力量。马克加亚是土将军，史利多芙是风将军，摩鲁多是火将军，欧格是水将军。</p>
+
+      <h3>波斯阵营的国王与将领</h3>
+      <dl>
+        <dt>米尔</dt><dd>幻之城阿鲁卡城的国王。</dd>
+        <dt>赫尔格</dt><dd>沼泽城堡贝尼库城的国王，借助魔王的力量，从大陆带来并操纵大鳄鱼。</dd>
+        <dt>奥莱西南</dt><dd>诺福克国王，行事不负责任。</dd>
+        <dt>加宾</dt><dd>双子城之一东马西亚城的国王。</dd>
+        <dt>柯尔宾</dt><dd>东马西亚的王子。</dd>
+        <dt>路西安斯</dt><dd>双子城之一西马西亚城的国王，也是难逢敌手的骑士。</dd>
+        <dt>雷斯夫</dt><dd>西马西亚的军师。</dd>
+        <dt>莱欧斯</dt><dd>深得民心的里雷城主。剧情对话也称他为「赖尔斯」。</dd>
+        <dt>马雷</dt><dd>耶通卢国王，生性胆怯。</dd>
+        <dt>萨格</dt><dd>镇守波斯后方的圣多凡国王。</dd>
+      </dl>
+    </section>
+
+    <section id="tips">
+      <h2>转职、成长与招募</h2>
+
+      <h3 id="classes">转职</h3>
+      <p>等级上限是 99，转职后会保留等级，也可以维持当前职业继续升级。不同职业可能让角色较不容易逃跑、能反弹箭矢，或取得担任队长的资格。</p>
+      <dl>
+        <dt>在武器店转职</dt>
+        <dd>符合条件的角色可付费转职，例如让他国兵士改编为我方兵士、让兵士成为弓兵，或让「士兵」转成「战士」。费用因转职对象而异。</dd>
+        <dt>让卡利恩士兵成为骑士</dt>
+        <dd>士兵达到所需等级后，可由卡利恩城的大主教授予骑士称号，取得领导部队的资格。在世界地图选「外交」和「卡利恩城」，派该士兵所在的部队前往王室深处找大主教。</dd>
+        <dt>让骑士成为骑兵</dt>
+        <dd>卡利恩的骑士可以在某处的马厩转为骑兵，也可通过「外交」前往。部分剧情事件也会使角色转职。</dd>
+      </dl>
+
+      <h3 id="levels">提升等级</h3>
+      <p>升级依据是命中敌人的次数。攻击率（AR）高的角色通常更快提高等级。</p>
+
+      <h3 id="fatigue">疲劳累积与恢复</h3>
+      <p>每次攻击敌人或遭受攻击都会累积疲劳（FT），战力也会随之下降。强者较容易疲劳，与防御高的敌人作战时也容易累积疲劳。</p>
+      <p>让部队休息即可逐渐恢复，也可用道具或住旅店恢复。作战时可轮换部队，避免同一支部队连续交战。城内的敌方队长和部队在战后回复得较快，宜尽量一战取胜。</p>
+
+      <h3 id="allies">争取盟友</h3>
+      <p>从世界地图选「外交」前往对方首领所在处，可以接触中立国或敌方将领。时机、局势和出使者会影响结果。先贸然进军也可能使局势改变。与一方结盟有时会使另一方敌对，原手册建议可依喜好选择盟友。</p>
+
+      <h3 id="recruit">招降敌人</h3>
+      <p>击倒敌方队长后，人形敌兵有时会倒戈，逃跑的敌兵较有可能加入。从两侧包抄，也可能比较容易捕获他们。</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>译文按呉ソフトウエア工房的官方网页编排，并用游戏附带的 Windows 帮助文件核对。菜单与名称以简体版游戏内用语为准。「泰纳里斯河」与「艾拉」按日文读音补译。<a href="http://www.kure.sakura.ne.jp/FQ1NEXT/FQ234TXT/Fq4manual.html" hreflang="ja">日文原文</a></p>
+    <p><a href="#contents">返回目录</a></p>
+  </footer>
+</body>
+</html>

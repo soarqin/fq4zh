@@ -1,6 +1,6 @@
-# First Queen IV Windows 版繁体中文移植
+# First Queen IV Windows 版简繁中文移植
 
-本项目将 DOS 版的官方繁体中文文本移植到 Windows 日文版 v1.10。使用自行准备的原版游戏文件，可以构建中文版游戏或单文件补丁工具。构建产物默认写入本地的 `dist` 目录。
+本项目将 DOS 版的官方繁体中文文本移植到 Windows 日文版 v1.10，并提供使用大陆常用术语的简体中文版。使用自行准备的原版游戏文件，可以构建中文版游戏或单文件补丁工具。构建产物默认写入本地的 `dist` 目录。
 
 ## 构建准备
 
@@ -14,7 +14,7 @@
 在仓库根目录安装 Python 依赖。
 
 ```powershell
-python -m pip install pefile
+python -m pip install pefile opencc-python-reimplemented==0.1.7
 ```
 
 ## 构建
@@ -27,7 +27,13 @@ python -m pip install pefile
 python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录"
 ```
 
-默认在 `dist\FQ4` 生成中文版 `fq4.exe`，并复制 Windows 原版的游戏资源到该目录。
+默认构建繁体版，输出目录为 `dist\FQ4`。构建简体版时加入 `--locale zh-CN`，输出目录为 `dist\FQ4-zh-CN`。
+
+```powershell
+python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录" --locale zh-CN
+```
+
+每个输出目录都包含中文版 `fq4.exe` 和复制的游戏资源。简体版用微软雅黑 UI，繁体版用微软正黑体 UI。
 
 ### 构建单文件补丁工具
 
@@ -37,21 +43,21 @@ python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录"
 python .\tools\build_patcher.py --win "Windows 版目录" --dos "DOS 版目录"
 ```
 
-默认生成 `dist\FQ4ChinesePatch.exe`。补丁数据内置于工具，生成的 EXE 可直接运行。
+默认生成 `dist\FQ4ChinesePatch.exe`。简繁补丁均内置于工具，生成的 EXE 可直接运行。
 
 ## 使用
 
 ### 运行中文版游戏
 
-构建完成后，进入 `dist\FQ4`，双击 `fq4.exe`。
+构建完成后，进入所选版本的输出目录，双击 `fq4.exe`。
 
 ### 使用单文件补丁工具
 
-双击生成的 `dist\FQ4ChinesePatch.exe`，通过「浏览…」选择 Windows 日文版 v1.10 的 `fq4.exe`，再选择一种方式。
+双击生成的 `dist\FQ4ChinesePatch.exe`，通过「浏览…」选择 Windows 日文版 v1.10 的 `fq4.exe`。在「游戏语言」中选择「繁體中文」或「简体中文」，再选择一种启动方式。
 
-- 「生成中文版 EXE」在原版游戏目录生成 `fq4.zh.exe`，可双击启动。已有同名文件时，工具会复用内容相同的文件，或提示先重命名内容不同的文件。
+- 「生成中文版 EXE」在原版游戏目录生成可以双击启动的程序。繁体版文件名为 `fq4.zh.exe`，简体版为 `fq4.zh-CN.exe`。已有同名文件时，工具会复用内容相同的文件，或提示先重命名内容不同的文件。
 - 「以内存补丁启动」立即启动游戏，汉化仅在本次运行中生效。游戏从原版目录读取资源和存档。
 
 ## 游戏手册
 
-用浏览器打开本地 HTML 手册，可离线查阅剧情、游戏操作和快捷键。[繁體中文遊戲手冊](docs/FQ4-manual-zh-Hant.html)
+用浏览器打开对应的 HTML 手册，可离线查阅剧情、游戏操作和快捷键。[简体中文游戏手册](docs/FQ4-manual-zh-Hans.html) · [繁體中文遊戲手冊](docs/FQ4-manual-zh-Hant.html)

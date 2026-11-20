@@ -88,12 +88,12 @@ def patch_game_ui(pe, source, glyphs, rules):
     return rows
 
 
-def patch_diagnostics(pe, source, glyphs, add):
+def patch_diagnostics(pe, source, glyphs, add, convert):
     rows = []
     for line in (ROOT / 'tools' / 'diagnostics.tsv').read_text(encoding='utf-8').splitlines():
         address, target = line.split('\t')
         offset = int(address, 16)
-        target = target.replace(r'\n', '\n')
+        target = convert(target.replace(r'\n', '\n'))
         raw = source[offset:source.index(0, offset)]
         japanese = raw.decode('cp932')
         placeholders = r'%[dxs]'
@@ -172,7 +172,7 @@ DIALOG_TEXT = {
 }
 
 
-def localize_dialog(raw):
+def localize_dialog(raw, convert, font_name):
     style, _, controls = struct.unpack_from('<IIH', raw)
     result = bytearray(raw[:18])
     pos = 18
@@ -192,9 +192,10 @@ def localize_dialog(raw):
         pos += 2
         if translate:
             seen.add(original)
-            original = DIALOG_TEXT.get(original, original)
+            if original in DIALOG_TEXT:
+                original = convert(DIALOG_TEXT[original])
         if font:
-            original = 'Microsoft JhengHei UI'
+            original = font_name
         result.extend((original + '\0').encode('utf-16le'))
 
     variable()
@@ -226,7 +227,11 @@ def resource_dialog(pe):
     return item.directory.entries[0].data.struct
 
 
-def build(windows, dos, out, work, *, memory_compatible=False):
+def build(windows, dos, out, work, *, locale='zh-TW', memory_compatible=False):
+    convert, font_name, charset = str, 'Microsoft JhengHei UI', b'\x88'
+    if locale == 'zh-CN':
+        from zh_cn import simplify
+        convert, font_name, charset = simplify, 'Microsoft YaHei UI', b'\x86'
     source = original_exe(windows)
     pe = PE(source)
     if memory_compatible:
@@ -251,7 +256,7 @@ def build(windows, dos, out, work, *, memory_compatible=False):
 
     main = dos_data(dos, 'MAIN.EXE')
     for row in story_rows(source, dos_data(dos, 'FQ4MES')):
-        target, origin = localize_story(row)
+        target, origin = localize_story(row, convert)
         cells = glyphs.cells(target)
         if len(cells) + 2 > BUFFER_SIZE:
             raise ValueError(f'Story ID {row["id"]} exceeds the message buffer')
@@ -260,6 +265,7 @@ def build(windows, dos, out, work, *, memory_compatible=False):
 
     for row in table_rows(source, main):
         target, origin = localize_table(row)
+        target = convert(target)
         pos, stride = row['win'], row['stride']
         if target:
             try:
@@ -269,13 +275,13 @@ def build(windows, dos, out, work, *, memory_compatible=False):
             pe.data[pos:pos+stride] = slot + b'\0'
         terms.append(dict(**row, target=target, origin=origin))
 
-    font = add(b'Microsoft JhengHei UI\0')
+    font = add((font_name + '\0').encode('ascii'))
     pe.patch(0x43D2D0, u32(0x4B9BCC), u32(font))
-    pe.patch(0x43D304, b'\x80', b'\x88')
+    pe.patch(0x43D304, b'\x80', charset)
 
     dialog = resource_dialog(pe)
     original_dialog = pe.pe.get_data(dialog.OffsetToData, dialog.Size)
-    dialog_data = localize_dialog(original_dialog)
+    dialog_data = localize_dialog(original_dialog, convert, font_name)
     if memory_compatible:
         # Keep the startup template accessible through the original image's resource directory.
         if len(dialog_data) > dialog.Size:
@@ -287,8 +293,8 @@ def build(windows, dos, out, work, *, memory_compatible=False):
         struct.pack_into('<II', pe.data, dialog.get_file_offset(), dialog_address - IMAGE_BASE, len(dialog_data))
 
     rules = dict(line.split('\t') for line in (ROOT / 'tools' / 'ui_terms.tsv').read_text(encoding='utf-8').splitlines())
-    ui = patch_game_ui(pe, source, glyphs, rules)
-    ui.extend(patch_diagnostics(pe, source, glyphs, add))
+    ui = patch_game_ui(pe, source, glyphs, {jp: convert(zh) for jp, zh in rules.items()})
+    ui.extend(patch_diagnostics(pe, source, glyphs, add, convert))
 
     decode = add(struct.pack('<65536H', *glyphs.decode), 4)
     encode = add(glyphs.encoder(), 4)
@@ -301,7 +307,7 @@ def build(windows, dos, out, work, *, memory_compatible=False):
     save_tsv(work / 'terms.tsv', terms)
     save_tsv(work / 'ui.tsv', ui)
     evidence = list(dos_ui(main))
-    save_tsv(work / 'ui-terms.tsv', (dict(ja=jp, target=zh, dos_offsets=' '.join(
+    save_tsv(work / 'ui-terms.tsv', (dict(ja=jp, target=convert(zh), dos_offsets=' '.join(
         f'0x{row["dos"]:x}' for row in evidence if zh.strip() and zh in row['zh'])) for jp, zh in rules.items()))
     out.mkdir(parents=True, exist_ok=True)
     for directory in ('DATA', 'PSDATA', 'BGM', 'FQ4HELP'):
@@ -317,12 +323,17 @@ def build(windows, dos, out, work, *, memory_compatible=False):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Build the Traditional Chinese FQ4 1.10 executable.')
+    parser = argparse.ArgumentParser(description='Build a Chinese FQ4 1.10 executable.')
     parser.add_argument('--win', type=Path, required=True, help='Windows Japanese v1.10 game directory')
     parser.add_argument('--dos', type=Path, required=True, help='Traditional Chinese DOS game directory')
-    parser.add_argument('--out', type=Path, default=ROOT / 'dist' / 'FQ4')
-    parser.add_argument('--work', type=Path, default=WORK / 'build')
+    parser.add_argument('--locale', choices=('zh-TW', 'zh-CN'), default='zh-TW')
+    parser.add_argument('--out', type=Path)
+    parser.add_argument('--work', type=Path)
     args = parser.parse_args()
+    if args.out is None:
+        args.out = ROOT / 'dist' / ('FQ4-zh-CN' if args.locale == 'zh-CN' else 'FQ4')
+    if args.work is None:
+        args.work = WORK / ('build-zh-CN' if args.locale == 'zh-CN' else 'build')
     if any(args.out.resolve().is_relative_to(path.resolve()) for path in (args.win, args.dos)):
         parser.error('Choose a separate output folder outside both game installations.')
-    build(args.win, args.dos, args.out, args.work)
+    build(args.win, args.dos, args.out, args.work, locale=args.locale)

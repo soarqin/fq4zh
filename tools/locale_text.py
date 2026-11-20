@@ -21,7 +21,7 @@ STORY_CHANGES = {
 JP_ESCAPE = re.compile(r'\\P[0-9A-F]R?')
 
 
-def localize_story(row):
+def localize_story(row, convert=str):
     idx, jp, zh = (row[key] for key in ('id', 'ja', 'zh'))
     if idx == 799:
         return jp, 'engine-table'
@@ -35,6 +35,7 @@ def localize_story(row):
     else:
         text, origin = zh.strip(), 'dos'
 
+    text = convert(text)
     if jp.count('\x01') == 2 and not jp.startswith('「'):
         choices = re.split(r'\u3000{3,}', text)
         assert len(choices) == 3, (idx, choices)

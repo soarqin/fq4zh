@@ -30,7 +30,7 @@ def changed_spans(before, after, start, stop):
         yield first, last + 1
 
 
-def make_payload(original, chinese, work):
+def make_payload(original, chinese, work, locale):
     before = pefile.PE(data=original)
     after = pefile.PE(data=chinese)
     original_sections = len(before.sections)
@@ -94,7 +94,10 @@ def make_payload(original, chinese, work):
         'kMessageBoxThunkRva': thunk_rva,
         'kMessageBoxThunkOffset': before.get_offset_from_rva(thunk_rva),
     }
-    lines = ['#pragma once', '#include <array>', '#include <cstdint>', '']
+    simplified = locale == 'zh-CN'
+    namespace = 'zh_cn' if simplified else 'zh_tw'
+    suffix = '_cn' if simplified else ''
+    lines = ['#pragma once', '', f'namespace {namespace} {{']
     for name, value in values.items():
         lines.append(f'inline constexpr std::uint32_t {name} = 0x{value:x};')
     hashes = {}
@@ -103,14 +106,17 @@ def make_payload(original, chinese, work):
         hashes[name.lower() + '_sha256'] = digest.hex()
         formatted = ', '.join(f'0x{value:02x}' for value in digest)
         lines.append(f'inline constexpr std::array<std::uint8_t, 32> k{name}Hash{{{formatted}}};')
-    lines.extend(['', 'struct PatchRecord {',
-                  '    std::uint32_t file_offset, rva, size;',
-                  '};', '', 'inline constexpr PatchRecord kRecords[] = {'])
+    lines.extend(['', 'inline constexpr PatchRecord kRecords[] = {'])
     lines.extend(f'    {{0x{offset:x}, 0x{rva:x}, 0x{size:x}}},' for offset, rva, size in records)
-    lines.append('};')
-    (work / 'patch_data.hpp').write_text('\n'.join(lines) + '\n', encoding='ascii')
-    (work / 'payload.bin').write_bytes(payload)
-    (work / 'payload.json').write_text(json.dumps({
+    lines.extend([
+        '};', '', 'inline constexpr PatchData kPatch{',
+        '    kTargetSize, kPayloadSize, kExtensionRva, kExtensionSize, kCodeRva, kCodeSize,',
+        f'    kTargetHash, kRecords, kRecords + {len(records)}',
+        '};', f'}}  // namespace {namespace}',
+    ])
+    (work / f'patch_data{suffix}.hpp').write_text('\n'.join(lines) + '\n', encoding='ascii')
+    (work / f'payload{suffix}.bin').write_bytes(payload)
+    (work / f'payload{suffix}.json').write_text(json.dumps({
         **hashes, 'records': len(records), 'payload_bytes': len(payload),
         'extension_address': hex(image_base + data.VirtualAddress),
         'extension_bytes': values['kExtensionSize'],
@@ -120,9 +126,12 @@ def make_payload(original, chinese, work):
 def build_patcher(windows, dos, output, work):
     if not shutil.which('cl.exe') or not shutil.which('rc.exe'):
         raise SystemExit('Run the build from an x86 Native Tools Command Prompt for Visual Studio.')
-    image = work / 'image'
-    build(windows, dos, image, work / 'translation', memory_compatible=True)
-    make_payload(original_exe(windows), (image / 'fq4.exe').read_bytes(), work)
+    original = original_exe(windows)
+    for locale, suffix in (('zh-TW', ''), ('zh-CN', '-zh-CN')):
+        image = work / ('image' + suffix)
+        build(windows, dos, image, work / ('translation' + suffix),
+              locale=locale, memory_compatible=True)
+        make_payload(original, (image / 'fq4.exe').read_bytes(), work, locale)
 
     resources = work / 'patcher.res'
     subprocess.run(['rc.exe', '/nologo', '/fo', str(resources), '/I', str(work),
