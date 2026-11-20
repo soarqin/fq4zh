@@ -1,0 +1,7 @@
+#define IDD_PATCHER 101
+#define IDR_PAYLOAD 102
+#define IDC_SOURCE 1001
+#define IDC_BROWSE 1002
+#define IDC_WRITE 1003
+#define IDC_LAUNCH 1004
+#define IDC_STATUS 1005

@@ -1,0 +1,37 @@
+b99b8	系統
+b99c4	畫面物件超過上限
+b99e4	錯誤
+b99f0	待命中
+b9a8c	計時器設定錯誤
+b9aa0	工作區初始化錯誤
+b9ab4	DirectX 初始化失敗，錯誤碼 %d\n遊戲將結束。
+b9b30	讀取錯誤
+b9b40	無法讀取檔案。\n[file = %s]
+b9b6c	DirectX 初始化失敗，錯誤碼 %d(0x%x)\n要忽略錯誤並繼續，請選「否」。
+b9bdc	DirectX 初始化失敗，錯誤碼 %d(0x%x, 0x%x, 0x%x)\n遊戲將結束。
+b9c20	DirectX 初始化失敗，錯誤碼 %d(%d)\n要忽略錯誤並繼續，請選「否」。
+b9c7c	DirectX 初始化失敗，錯誤碼 %d(0x%x, 0x%x, 0x%x, 0x%x)\n要忽略錯誤並繼續，請選「否」。
+b9dbc	要結束遊戲嗎？
+ba500	movie_play()：無法設定材質 (%d,%d)
+ba540	movie_load(*,*,%d,%d,%d,%d)：無法建立執行緒
+ba574	movie_load(*,*,%d,%d,%d,%d)：讀取緩衝區為空
+ba5a8	movie_load(*,*,%d,%d,%d,%d)：執行緒忙碌或出錯 (%d,%d)
+ba724	無法取得 DirectSound 緩衝區。
+ba750	無法建立 DirectMusic 載入器。
+ba77c	無法設定 DirectMusic 音效路徑。
+ba7a8	無法設定 DirectMusic 音樂路徑。
+ba7d8	無法取得 DirectMusic。
+ba7fc	DirectMusic 初始化失敗。
+ba820	無法建立 DirectMusic。
+ba844	DirectMusic 傳輸失敗。
+ba868	無法讀取 MIDI 檔案。
+ba88c	無法取得 DirectMusic 音樂片段。
+ba8b8	DirectMusic 檔案讀取失敗。
+ba8e4	無法讀取 MIDI 檔案資源。
+ba91c	無法讀取資源。
+ba934	找不到資源。
+ba958	DirectMusic 播放失敗。
+ba97c	無法停止 DirectMusic。
+ba9a0	DirectMusic 音量設定失敗。
+ba9cc	DirectSound 殘響設定失敗。
+ba9f8	DirectSound 音效設定失敗。

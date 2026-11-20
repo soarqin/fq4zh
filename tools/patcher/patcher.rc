@@ -1,0 +1,19 @@
+#pragma code_page(65001)
+#include <windows.h>
+#include "resource.h"
+
+IDD_PATCHER DIALOGEX 0, 0, 318, 111
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
+CAPTION "First Queen IV 中文补丁"
+FONT 9, "Microsoft YaHei UI"
+BEGIN
+    LTEXT           "日文版游戏 EXE", -1, 12, 10, 250, 11
+    EDITTEXT        IDC_SOURCE, 12, 25, 240, 17, ES_AUTOHSCROLL
+    PUSHBUTTON      "浏览…", IDC_BROWSE, 258, 25, 48, 17
+    LTEXT           "支持此次校验的 Windows 日文版 v1.10。", -1, 12, 48, 294, 12
+    PUSHBUTTON      "生成中文版 EXE", IDC_WRITE, 12, 65, 144, 21
+    PUSHBUTTON      "以内存补丁启动", IDC_LAUNCH, 162, 65, 144, 21
+    LTEXT           "", IDC_STATUS, 12, 92, 294, 15
+END
+
+IDR_PAYLOAD RCDATA "payload.bin"

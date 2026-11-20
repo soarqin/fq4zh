@@ -1,0 +1,45 @@
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local credentials and editor files
+.env
+.env.*
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+Thumbs.db
+Desktop.ini
+
+# Build products and game data
+/dist/
+*.exe
+*.obj
+*.pdb
+*.res
+*.i64
+*.idb
+save*.dat
+fq4cfg.ini
+
+# Track the handwritten analysis and verification scripts in work.
+/work/**
+!/work/inspect_movies.py
+!/work/audio/
+!/work/audio/probe.py
+!/work/ida/
+!/work/ida/audit_render.py
+!/work/ida/dump_win.py
+!/work/ida/inspect_win.py
+!/work/labels/
+!/work/labels/check.py
+!/work/patcher/
+!/work/patcher/verify.py
+!/work/render-audit/
+!/work/render-audit/check.py
+!/work/render-audit/probe_input.py
