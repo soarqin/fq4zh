@@ -228,10 +228,14 @@ def resource_dialog(pe):
 
 
 def build(windows, dos, out, work, *, locale='zh-TW', memory_compatible=False):
-    convert, font_name, charset = str, 'Microsoft JhengHei UI', b'\x88'
+    convert = str
+    game_font, font_height, charset = 'Microsoft JhengHei', -15, b'\x88'
+    dialog_font = 'Microsoft JhengHei UI'
     if locale == 'zh-CN':
         from zh_cn import simplify
-        convert, font_name, charset = simplify, 'Microsoft YaHei UI', b'\x86'
+        convert = simplify
+        game_font, font_height, charset = 'SimHei', -16, b'\x86'
+        dialog_font = 'Microsoft YaHei UI'
     source = original_exe(windows)
     pe = PE(source)
     if memory_compatible:
@@ -275,13 +279,16 @@ def build(windows, dos, out, work, *, locale='zh-TW', memory_compatible=False):
             pe.data[pos:pos+stride] = slot + b'\0'
         terms.append(dict(**row, target=target, origin=origin))
 
-    font = add((font_name + '\0').encode('ascii'))
+    font = add((game_font + '\0').encode('ascii'))
     pe.patch(0x43D2D0, u32(0x4B9BCC), u32(font))
+    # Size the em and leave width to the font mapper. At -16 JhengHei's ink
+    # extends below the engine's 16-pixel row, so its em is one pixel smaller.
+    pe.patch(0x43D2D9, u32(16), struct.pack('<i', font_height))
     pe.patch(0x43D304, b'\x80', charset)
 
     dialog = resource_dialog(pe)
     original_dialog = pe.pe.get_data(dialog.OffsetToData, dialog.Size)
-    dialog_data = localize_dialog(original_dialog, convert, font_name)
+    dialog_data = localize_dialog(original_dialog, convert, dialog_font)
     if memory_compatible:
         # Keep the startup template accessible through the original image's resource directory.
         if len(dialog_data) > dialog.Size:

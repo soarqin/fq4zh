@@ -55,11 +55,6 @@ def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb)
     base = IMAGE_BASE + pe.next_rva
     code = Code(base)
 
-    # Match the Chinese face to the existing 16-pixel character grid.
-    # The call's return address shifts the three LOGFONTA fields by four bytes.
-    font_width = code.label('font_width')
-    code.emit('c7 44 24 5c 08 00 00 00 89 7c 24 60 89 7c 24 64 c3')
-
     # The new message table is pointer-indexed UTF-16. The dialogue parser still
     # expects single-byte layout controls and two-byte glyph cells in its buffer.
     message_load = code.label('message_load')
@@ -148,7 +143,6 @@ def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb)
         pe.patch(address, bytes.fromhex(original), b'\xe9' + struct.pack('<i', stub - address - 5) + b'\x90')
     pe.patch(0x437732, bytes.fromhex('668b026689442444'),
              b'\xe9' + struct.pack('<i', status_name - 0x437737) + b'\x90' * 3)
-    pe.patch(0x43D2DD, bytes.fromhex('897c2458897c245c897c2460'), call(0x43D2DD, font_width) + b'\x90' * 7)
     pe.patch(0x418060, bytes.fromhex('8b44240466'), b'\xe9' + struct.pack('<i', message_load - 0x418065))
     for addr, stub, original in ((0x40D0BA, sprite_eax, '66c780ee6e4c000a00'),
                                   (0x40D1DB, sprite_eax, '66c780ee6e4c000a00'),

@@ -33,7 +33,7 @@ python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录"
 python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录" --locale zh-CN
 ```
 
-每个输出目录都包含中文版 `fq4.exe` 和复制的游戏资源。简体版用微软雅黑 UI，繁体版用微软正黑体 UI。
+每个输出目录都包含中文版 `fq4.exe` 和复制的游戏资源。游戏内简体使用黑体（SimHei），属于 Windows 的简体中文补充字体。游戏内繁体使用微软正黑体。
 
 ### 构建单文件补丁工具
 
