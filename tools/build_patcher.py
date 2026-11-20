@@ -8,7 +8,7 @@ from pathlib import Path
 import pefile
 
 from build import build
-from catalog import DOS, ROOT, WIN, WORK, original_exe
+from catalog import ROOT, WORK, original_exe
 
 
 PATCHER = ROOT / 'tools' / 'patcher'
@@ -143,8 +143,8 @@ def build_patcher(windows, dos, output, work):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build the standalone First Queen IV Chinese patcher.')
-    parser.add_argument('--win', type=Path, default=WIN)
-    parser.add_argument('--dos', type=Path, default=DOS)
+    parser.add_argument('--win', type=Path, required=True, help='Windows Japanese v1.10 game directory')
+    parser.add_argument('--dos', type=Path, required=True, help='Traditional Chinese DOS game directory')
     parser.add_argument('--out', type=Path, default=ROOT / 'dist' / 'FQ4ChinesePatch.exe')
     parser.add_argument('--work', type=Path, default=BUILD_DIR)
     args = parser.parse_args()

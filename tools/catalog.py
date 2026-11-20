@@ -10,8 +10,6 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WORK = ROOT / 'work'
-WIN = Path(r'D:\Games\FQ4')
-DOS = Path(r'D:\DOS\FQ4')
 EXE_SHA256 = 'a58d24b16c5ce928ddf796b6470c0b2ea0e04fdc344e590ea9253bef48fad0fd'
 DOS_SHA256 = {
     'FQ4MES': '8f8624d1b366a8556bac3ed22ffe0ec3c242d17537aac10d2dc8571138b315cc',
@@ -147,8 +145,8 @@ def extract(windows, dos, output):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract the Japanese and official Traditional Chinese text.')
-    parser.add_argument('--win', type=Path, default=WIN)
-    parser.add_argument('--dos', type=Path, default=DOS)
+    parser.add_argument('--win', type=Path, required=True, help='Windows Japanese v1.10 game directory')
+    parser.add_argument('--dos', type=Path, required=True, help='Traditional Chinese DOS game directory')
     parser.add_argument('--out', type=Path, default=WORK / 'catalog')
     args = parser.parse_args()
     extract(args.win, args.dos, args.out)

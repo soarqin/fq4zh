@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pefile
 
-from catalog import DOS, ROOT, WIN, WORK, dos_data, dos_ui, original_exe, save_tsv, story_rows, table_rows, win_ui
+from catalog import ROOT, WORK, dos_data, dos_ui, original_exe, save_tsv, story_rows, table_rows, win_ui
 from locale_text import localize_story, localize_table
 from reverb import reverb_data
 from runtime import BUFFER_SIZE, IMAGE_BASE, patch_runtime, u32
@@ -318,8 +318,8 @@ def build(windows, dos, out, work, *, memory_compatible=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build the Traditional Chinese FQ4 1.10 executable.')
-    parser.add_argument('--win', type=Path, default=WIN)
-    parser.add_argument('--dos', type=Path, default=DOS)
+    parser.add_argument('--win', type=Path, required=True, help='Windows Japanese v1.10 game directory')
+    parser.add_argument('--dos', type=Path, required=True, help='Traditional Chinese DOS game directory')
     parser.add_argument('--out', type=Path, default=ROOT / 'dist' / 'FQ4')
     parser.add_argument('--work', type=Path, default=WORK / 'build')
     args = parser.parse_args()
