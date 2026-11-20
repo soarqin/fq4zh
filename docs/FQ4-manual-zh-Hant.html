@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>First Queen IV｜Windows 版繁體中文手冊</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      max-width: 52rem;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+      font: 1rem/1.75 "Microsoft JhengHei UI", "PingFang TC", system-ui, sans-serif;
+    }
+    h1, h2, h3, h4 { line-height: 1.35; }
+    h1 { font-size: 2rem; margin: 0 0 .45rem; }
+    h2 { font-size: 1.45rem; margin-top: 0; }
+    h3 { font-size: 1.15rem; margin-top: 1.6rem; }
+    h4 { font-size: 1rem; margin-bottom: .35rem; }
+    p, ul, ol, dl, table { margin: .6rem 0 1rem; }
+    ul, ol { padding-inline-start: 1.4em; }
+    li + li { margin-top: .25rem; }
+    a { text-underline-offset: .15em; }
+    :target { scroll-margin-top: 1rem; }
+    .contents { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); }
+    section, footer { border-top: 1px solid #80808066; margin-top: 2rem; padding-top: 1.25rem; }
+    dt { font-weight: bold; margin-top: .7rem; }
+    dd { margin-inline-start: 0; }
+    table { width: 100%; border-collapse: collapse; overflow-wrap: anywhere; }
+    th, td {
+      border-bottom: 1px solid #80808066;
+      padding: .45rem .55rem;
+      text-align: start;
+      vertical-align: top;
+    }
+    thead th { border-bottom-width: 2px; }
+    tbody th { width: 27%; }
+    kbd { font: inherit; font-weight: bold; white-space: nowrap; }
+    footer { font-size: .9rem; }
+    @media print {
+      body { max-width: none; padding: 0; }
+      h2, h3, h4 { break-after: avoid; }
+      tr { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>First Queen IV 繁體中文手冊</h1>
+    <p>適用於 Windows 版。選單、人物、地名、道具與魔法沿用現有繁中移植版的用語。</p>
+  </header>
+
+  <nav id="contents" aria-labelledby="contents-heading">
+    <h2 id="contents-heading">目錄</h2>
+    <ul class="contents">
+      <li><a href="#story">故事背景</a></li>
+      <li><a href="#start">啟動、讀檔與結束</a></li>
+      <li><a href="#progress">遊戲流程與敗北條件</a></li>
+      <li><a href="#windows">視窗操作</a></li>
+      <li><a href="#playing">區域地圖的基本操作</a></li>
+      <li><a href="#status">狀態顯示</a></li>
+      <li><a href="#connections">區域連接圖</a></li>
+      <li><a href="#local-menu">區域地圖選單與圖示</a></li>
+      <li><a href="#world-map">世界地圖操作</a></li>
+      <li><a href="#keyboard">快捷鍵</a></li>
+      <li><a href="#items">道具</a></li>
+      <li><a href="#spells">魔法與施法者</a></li>
+      <li><a href="#characters">登場人物</a></li>
+      <li><a href="#tips">轉職、成長與招募</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="story">
+      <h2>故事背景</h2>
+      <p>希臘半島的戰爭已結束二十多年。引發戰亂的異世界魔王伽羅被封在地下，殘留的意念卻在地上四處尋找復活的機會。發現一股強大的熱源後，伽羅便將瀕臨毀滅的身體轉移過去。</p>
+      <p>洛克莉斯原由天地間的精靈統治。大陸各族的紛爭暫告一段落後，人們陸續渡海來到這座富饒的島，精靈也逐漸隱居。各國雖時常為領地起衝突，仍在合作與牽制下維持和平，並推舉勢力最大的波斯王塞內爾為代表。</p>
+      <p>波斯的領土從洛克莉斯中部延伸到北方。國土廣大、人口較少，即使各地設有堅固的城堡和要塞，仍面臨外敵入侵。塞內爾是天才科學家，也曾苦修並習得數種魔法，因而得以守住領土。</p>
+      <p>大陸渡海而來的魔法師宙出任參謀後，塞內爾性情大變。波斯的兵力突然增加，民眾卻紛紛逃往鄰國，指控國王已將心交給魔物。波斯城傳出詭異的聲響，據說城裡冒出的瘴氣能使生靈發狂。塞內爾似乎已掌握操縱人心和用魔法造兵的方法。</p>
+      <p>諸侯匆忙加強防守，卡利恩王艾雷斯則試圖刺殺塞內爾，失手被擒。波斯趁勢進兵，吞併卡利恩的領地。神祕人擊倒獄卒、解開牢門，教艾雷斯駕馭鐵嘴神鷹，讓他得以逃回卡利恩城。</p>
+      <p>艾雷斯的戀人愛倫是一名勇敢的戰士。她聽說艾雷斯被捕，立即離城營救。艾雷斯回來後，沒有人知道她的下落。城中只剩少數守軍，多數部隊似乎已敗在波斯軍手下。艾雷斯號召諸侯起兵反抗時，許多領主已歸附波斯。敵軍攻破卡利恩在泰納里斯河畔的要塞，渡河逼近城下。</p>
+
+      <h3>各國動向</h3>
+      <dl>
+        <dt>慕尼頓</dt>
+        <dd>海盜據守的水上要塞都市，趁亂出兵普萊一帶，企圖擴張領地。</dd>
+        <dt>格林斯</dt>
+        <dd>礦山國沿山區進軍，控制了採礦聚落達賓村。</dd>
+        <dt>貝尼庫</dt>
+        <dd>水上城堡貝尼庫從大陸帶來大鱷魚部隊以增強兵力，率先攻下普萊村。</dd>
+        <dt>薩內多</dt>
+        <dd>精靈之國與波斯訂有互不侵犯協定，默許波斯軍借道。雷斯達入侵後，薩內多派兵到肯特以北與其對峙。</dd>
+        <dt>雷斯達</dt>
+        <dd>森林國為奪取精靈領地，進入肯特以北，同時出兵休利亞。休利亞堡壘仍然守住了。</dd>
+        <dt>休利亞</dt>
+        <dd>平原國依先王遺命加強防守，拒絕與各國締約。雷斯達屢次進犯休利亞堡壘，皆由王子傑蘭率軍守下。</dd>
+      </dl>
+    </section>
+
+    <section id="start">
+      <h2>啟動、讀檔與結束</h2>
+      <h3>啟動選單</h3>
+      <p>啟動遊戲後，在「FQ4 啟動選單」設定畫面與音效，選「開始」播放片頭。開場影片可按 <kbd>Enter</kbd> 或滑鼠左鍵略過。</p>
+      <dl>
+        <dt>畫面模式</dt>
+        <dd>「視窗模式」以 640 × 480 啟動，之後可調整大小。選「全螢幕模式」時，可在右側下拉選單指定解析度。</dd>
+        <dt>音效設定</dt>
+        <dd>可選「關閉音效」、「開啟音效，關閉音效特效」或「開啟音效與音效特效」。此處也能調整「背景音樂音量」與「效果音音量」，可先試聽預設音量。音效特效可能增加 CPU 負荷。原版以 DirectX 9.0 的音訊元件播放音效。若遇到音效相容性問題，可先關閉音效特效，或選「關閉音效」。</dd>
+        <dt>重設遊戲內視窗</dt>
+        <dd>啟動時恢復遊戲內的預設視窗配置。縮小解析度後若有視窗移出可操作範圍，可使用此選項。</dd>
+        <dt>停用透明混合</dt>
+        <dd>以不透明方式繪製原本半透明的畫面。遊戲變慢時，可試著停用透明混合或縮小視窗、降低全螢幕解析度。</dd>
+      </dl>
+
+      <h3>開始新遊戲或繼續遊戲</h3>
+      <p>在標題畫面選「從頭開始」，再選難度。新遊戲的開場事件會自動進行，按 <kbd>Enter</kbd> 或滑鼠左鍵可繼續對話。選「繼續遊戲」可從存檔清單載入進度。</p>
+      <table aria-label="遊戲難度">
+        <thead><tr><th scope="col">難度</th><th scope="col">效果</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">無參戰</th><td>敵軍強度與「普通」相同，敵軍不會呼叫援軍。</td></tr>
+          <tr><th scope="row">初學者</th><td>敵軍比「普通」弱。</td></tr>
+          <tr><th scope="row">普通</th><td>標準敵軍強度。</td></tr>
+          <tr><th scope="row">熟練</th><td>敵軍比「普通」強。</td></tr>
+          <tr><th scope="row">苦鬥</th><td>Windows v1.10 選單中的額外難度。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>結束遊戲</h3>
+      <p>進入「營地」，在世界地圖選「結束遊戲」，再選「是」。也可以按 <kbd>Alt</kbd> + <kbd>F4</kbd>，或在視窗模式按右上角的關閉按鈕。</p>
+    </section>
+
+    <section id="progress">
+      <h2>遊戲流程與敗北條件</h2>
+      <p>指揮數支部隊向敵方據點推進。劇情推進時會有角色和部隊加入，也可透過「外交」爭取中立國。部隊在<a href="#world-map">世界地圖</a>設定目的地，再用「時間經過」推進。進入<a href="#playing">區域地圖</a>後，改用滑鼠或鍵盤直接控制角色。</p>
+      <p>作戰時可利用有利地形、屬性相剋和魔法。一次戰鬥最多可派兩支我方部隊，依照疲勞情況輪換。視戰況派一支部隊也可作戰，還能用特定魔法或道具召喚助力。</p>
+      <p>艾雷斯死亡，或敵軍攻入卡利恩城時，遊戲結束。主線沒有通關必備道具，持有道具的隊員陣亡後仍可繼續劇情。</p>
+    </section>
+
+    <section id="windows">
+      <h2>視窗操作</h2>
+      <p>主視窗會跟隨正在操控的角色，並一直開啟。也可從主選單開啟<a href="#subwindows">輔助視窗</a>，查看各處戰況。危險視窗可用滑鼠直接操控其中的角色。</p>
+      <ul>
+        <li><strong>調整大小。</strong>用滑鼠左鍵拖曳視窗左下或右下角的小方塊。縮小主視窗可露出後方的個人狀態欄，也可加快最高速時的畫面更新。</li>
+        <li><strong>移動視窗。</strong>拖曳視窗左上角的小方塊，放開即可固定位置。</li>
+        <li><strong>切換前後順序。</strong>按一下露在外面的視窗，可將它移到最上層。在地圖畫面按滑鼠右鍵可輪換重疊順序。</li>
+        <li><strong>關閉輔助視窗。</strong>按視窗框右上角的 ×。</li>
+      </ul>
+    </section>
+
+    <section id="playing">
+      <h2>區域地圖的基本操作</h2>
+      <p>取得艾雷斯的控制權後便可開始行動。平時畫面只顯示隊長。遇敵時隊員自行作戰，結束後回到隊長身邊。角色與敵人相鄰時會自動交戰。開啟「自動戰鬥」後，正在操控的角色也會自行追擊敵人。</p>
+
+      <h3>移動和切換角色</h3>
+      <ul>
+        <li>把滑鼠游標移向視窗中央角色的上、下、左或右方，按住左鍵帶動角色。鍵盤可用數字鍵盤的 <kbd>8</kbd>、<kbd>2</kbd>、<kbd>4</kbd>、<kbd>6</kbd> 分別向四個方向移動。</li>
+        <li>對狀態欄中某名角色的 HP 或 ST 按滑鼠右鍵，即可接手操控。也可按 <kbd>←</kbd> 或 <kbd>→</kbd> 選人，再按 <kbd>Enter</kbd> 確定。HP 數字以黑底反白顯示的是目前操控的角色。角色陷入危險時，HP 數字會變色。</li>
+        <li>兩支我方部隊同時在場時，可按 <kbd>↑</kbd> 或上方的「切換部隊」圖示。要讓另一支部隊離開地圖，先切換過去，再操控隊長走向出口。</li>
+      </ul>
+
+      <h3>射箭、施法與使用道具</h3>
+      <p>操控有相應能力的角色，按 <kbd>Space</kbd> 或在角色身上按滑鼠左鍵，即可射箭、施放<a href="#select-magic">選定的魔法</a>或使用主動道具。同一角色同時持有可主動使用的道具，又能射箭或施法時，優先使用道具。多數道具只要持有就會生效，其他角色也會自行射箭或施法。</p>
+
+      <h3>下馬</h3>
+      <p>騎馬的角色可能進不了建築或狹窄通道。可按上方的「特殊指令」圖示並選「下馬」，也可按 <kbd>↓</kbd>，再選「執行」。在目前地圖下馬後，換到另一張地圖才會恢復騎乘。建築內須徒步行動。</p>
+
+      <h3>離開區域</h3>
+      <p>多數區域可從上緣或下緣離開。通常要操控隊長走到出口。沒有敵軍時，畫面會提示「進入營地」並返回世界地圖。戰鬥中離開可能遺下陷入危險的隊員。看到警告時可用 <kbd>Esc</kbd>、數字鍵盤 <kbd>0</kbd> 或滑鼠右鍵取消，走散的隊員有時會在別處重逢。</p>
+      <p>出口通往哪一區由目前地圖決定。戰鬥結束時，仍留在場上的參戰部隊會返回原區域。探索時也可調查門和洞窟入口，或從人物對話取得線索。</p>
+
+      <h3>操作選單和對話</h3>
+      <p>在區域地圖按 <kbd>Home</kbd> 開啟主選單。將滑鼠移到項目上會移動手指游標，再按左鍵確定。鍵盤可用數字鍵盤的 <kbd>8</kbd>、<kbd>2</kbd> 上下選擇，再按 <kbd>Enter</kbd> 確定。能取消的畫面可按 <kbd>Esc</kbd>、數字鍵盤 <kbd>0</kbd> 或滑鼠右鍵。</p>
+    </section>
+
+    <section id="status">
+      <h2>狀態顯示</h2>
+      <p>狀態欄位於遊戲視窗後方。縮小主視窗即可露出欄位。拖曳欄位名稱可以重新排列，按住 <kbd>Ctrl</kbd> 拖曳可微調位置。帶有 <strong>C</strong> 標記的是正在操控的部隊。對角色的 HP 或 ST 按滑鼠右鍵可切換操控對象。</p>
+      <p>在「系統」的「狀態顯示設定」中，選「操控部隊設定」或「非操控部隊設定」，再切換所需的欄位。</p>
+      <table aria-label="區域地圖狀態欄位">
+        <thead><tr><th scope="col">欄位</th><th scope="col">意義</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">HP</th><td>目前生命力，降到 0 時角色死亡。</td></tr>
+          <tr><th scope="row">ST</th><td>狀態圖示，包括一般、陣亡、追擊、攻擊、撤退、中毒、石化、混亂和停止。旁邊的 ＋ 表示角色受到地形加成（GE）。</td></tr>
+          <tr><th scope="row">ITEM</th><td>道具圖示。</td></tr>
+          <tr><th scope="row">LV</th><td>等級。</td></tr>
+          <tr><th scope="row">MXHP</th><td>最大生命力。</td></tr>
+          <tr><th scope="row">NAME</th><td>姓名簡寫，最左邊是隊長。繁中版的狀態欄最多顯示兩個完整漢字，可在世界地圖的「資料」查看全名。</td></tr>
+          <tr><th scope="row">AT／AR</th><td>攻擊力／攻擊率。</td></tr>
+          <tr><th scope="row">DF／DR</th><td>防禦力／防禦率。</td></tr>
+          <tr><th scope="row">AD／AA</th><td>矢防禦力／矢回避率。</td></tr>
+          <tr><th scope="row">MD</th><td>魔法防禦力。</td></tr>
+          <tr><th scope="row">FT</th><td>以藍字顯示的疲勞值。數值越高，戰鬥能力越低。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="connections">
+      <h2>區域連接圖</h2>
+      <p>區域之間的連接方式可在遊戲地圖上查看。</p>
+    </section>
+
+    <section id="local-menu">
+      <h2>區域地圖選單與圖示</h2>
+      <p><kbd>Home</kbd> 開啟主選單。選單上方顯示目前操控部隊的隊長姓名。按 <kbd>F12</kbd>，或在畫面空白的黑色區域按滑鼠右鍵，可切換左上方的指令圖示。用 <kbd>Esc</kbd>、數字鍵盤 <kbd>0</kbd> 或滑鼠右鍵關閉選單。</p>
+      <p><a href="#orders">部隊指令</a> · <a href="#switch">切換部隊</a> · <a href="#formation">隊型</a> · <a href="#markers">標記</a> · <a href="#subwindows">視窗</a> · <a href="#system">系統</a> · <a href="#select-magic">魔法選擇</a> · <a href="#reinforcements">呼叫援軍</a> · <a href="#camp">營地</a></p>
+
+      <h3 id="orders">部隊指令</h3>
+      <p>可向目前場上的第一部隊，以及以增援身分到場的第二部隊下令。正在生效的指令會反映在圖示上。</p>
+      <table aria-label="部隊指令">
+        <thead><tr><th scope="col">指令</th><th scope="col">部隊行動</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">一般指令</th><td>維持以隊長為中心的隊型，遭攻擊時應戰。</td></tr>
+          <tr><th scope="row">攻擊指令</th><td>各隊員主動前往迎敵。隊員陷入危險時仍可能自行撤退。</td></tr>
+          <tr><th scope="row">撤退指令</th><td>朝部隊進入這張地圖的方向撤退。按住 <kbd>Shift</kbd> 也能暫時下達此指令。要撤離地圖，須親自操控隊長走過出口。</td></tr>
+          <tr><th scope="row">停止指令</th><td>暫停未受玩家操控的隊員。</td></tr>
+        </tbody>
+      </table>
+      <p>上表四項指令同時只有一項生效，效力限於目前區域。進入新區域時，預設採用「攻擊指令」。召喚角色自行行動。</p>
+      <h4>特殊指令</h4>
+      <ul>
+        <li>「下馬」讓騎乘成員在目前地圖徒步行動。</li>
+        <li>「丟掉弓箭」可提高部分弓手的攻擊和防禦。棄弓後須到武器店透過轉職取回弓箭。</li>
+        <li>「交涉」可在戰況非常有利或不利時嘗試。部隊需要具備交涉能力的成員。若交涉成功，可能有機會安全撤退。每場戰鬥最多交涉一次。</li>
+      </ul>
+
+      <h3 id="switch">切換部隊</h3>
+      <p>兩支我方部隊在同一張地圖時，可選「切換部隊」或按 <kbd>↑</kbd> 更換操控對象。換過去的部隊會取得狀態欄的 C 標記。兩支部隊的第一、第二部隊身分照舊。</p>
+
+      <h3 id="formation">隊型</h3>
+      <p>用「隊型」選單或圖示設定部隊移動時的排列。「隊型１」、「隊型２」、「隊型３」是預設戰鬥隊型。「一列隊型」讓隊員排在隊長身後。「自訂」會套用已記下的排列。</p>
+      <p>要建立自訂隊型，在安全處下達「停止指令」，逐一操控角色站位，再選「設定自訂隊型」。自訂隊型不會寫入存檔。</p>
+
+      <h3 id="markers">標記</h3>
+      <p>選「標記」或對應圖示後，可用「標示隊長」標出目前操控的角色，或選「全員標示」標出所有友軍。選「除去標記」可清除標記。</p>
+
+      <h3 id="subwindows">視窗</h3>
+      <p>選「視窗」或對應圖示，再指定要「開啟」或「關閉」的視窗。編號顯示在視窗框左上角。初次開啟的輔助視窗會縮小顯示在左側，可用滑鼠調整位置和大小。</p>
+      <table aria-label="區域地圖輔助視窗">
+        <thead><tr><th scope="col">編號與設定</th><th scope="col">追蹤對象</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">1　非操控部隊設定</th><td>跟隨另一支我方部隊的隊長。</td></tr>
+          <tr><th scope="row">2　敵軍視窗設定</th><td>跟隨敵軍隊長。</td></tr>
+          <tr><th scope="row">3　危險視窗設定</th><td>追蹤瀕危的我方角色。可用滑鼠就地操控。</td></tr>
+          <tr><th scope="row">4　自由視窗設定</th><td>查看地圖中指定的位置。</td></tr>
+        </tbody>
+      </table>
+      <p>前 3 種視窗在沒有追蹤對象時會顯示「待命中」。</p>
+
+      <h3 id="system">系統</h3>
+      <ul>
+        <li>「狀態顯示設定」控制主視窗後方的欄位是否顯示。「狀態位置設定」可調整狀態配置，「生命力顯示方式」可選「數字顯示」或「量表顯示」。</li>
+        <li>「遊戲速度設定」可調整行動和動畫速度，從慢速、普通到快速。按住 <kbd>Ctrl</kbd> 時會暫時以最高速執行。</li>
+        <li>「自動戰鬥」開啟後，目前操控的角色也會自行作戰。</li>
+        <li>「開場部隊指令」可預先指定進入區域時的部隊行動。</li>
+      </ul>
+
+      <h3 id="select-magic">魔法選擇</h3>
+      <p>先切換到有魔法能力的角色，再選「魔法選擇」、按對應圖示或按 <kbd>F3</kbd>。選好後，按 <kbd>Space</kbd> 或在角色身上按滑鼠左鍵施法。卡魯也在這裡更換獸衣。</p>
+
+      <h3 id="reinforcements">呼叫援軍</h3>
+      <p>當交戰區域或鄰近區域有可用的友軍，而且場上只有一支我方部隊時，可從清單選出援軍。選中的部隊會以第二部隊身分加入戰鬥。已撤離的部隊也可再次呼叫回來。</p>
+
+      <h3 id="camp">營地</h3>
+      <p>可紮營時，使用「營地」選單、圖示或 <kbd>F1</kbd> 返回世界地圖。沒有敵軍時，從地圖的上緣或下緣離開也能返回。回到世界地圖後，即可移動其他部隊和存檔。</p>
+      <p>紮營須等戰鬥結束，並離開城堡、屋內、地下城等內部區域。</p>
+    </section>
+
+    <section id="world-map">
+      <h2>世界地圖操作</h2>
+      <p><a href="#time">時間經過</a> · <a href="#move">部隊移動</a> · <a href="#explore">探索</a> · <a href="#diplomacy">外交</a> · <a href="#roster">編制</a> · <a href="#information">資料</a> · <a href="#power-map">勢力圖</a> · <a href="#save">記錄與結束遊戲</a></p>
+      <p>在選單和區域圖示以外的地圖空白處按住滑鼠左鍵，可向該方向捲動。也可按住任一方向鍵，同時按數字鍵盤的 <kbd>8</kbd>、<kbd>2</kbd>、<kbd>4</kbd> 或 <kbd>6</kbd> 捲動。另按住 <kbd>Ctrl</kbd> 可加快捲動。</p>
+      <p>把游標移到區域上，右下方會顯示地名。若有部隊駐紮，按左鍵可查看部隊清單和戰力。戰力依人數、兵士強度和武器計算。敵軍圖示朝前，友軍朝後，中立部隊朝側面。</p>
+
+      <h3 id="time">時間經過</h3>
+      <p>每執行一次「時間經過」，敵我部隊會交替行動。已設定目的地的部隊會向目的地前進一格，所有部隊的疲勞都會略微恢復。進入城堡或要塞，或與敵軍相遇而開戰時，畫面會切換到區域地圖。</p>
+
+      <h3 id="move">部隊移動</h3>
+      <ol>
+        <li>選「部隊移動」，再從清單選擇部隊。滑鼠游標下方會出現旗幟。</li>
+        <li>在世界地圖上點選目的地。左上方會顯示所選地名，若有敵軍也會列出其隊長和戰力。</li>
+        <li>按滑鼠左鍵或右鍵開啟「確認目的地」，再選「確定」。</li>
+        <li>選「時間經過」，讓部隊開始前進。</li>
+      </ol>
+      <p>要清除原有目的地，可再次選擇同一部隊，在設定目的地時取消。</p>
+
+      <h3 id="explore">探索</h3>
+      <p>在世界地圖選「探索」，再選一支我方部隊，即可進入該部隊所在的區域。要探索其他地方，先讓部隊抵達。進入區域後，左上角會顯示部隊名稱。</p>
+      <p>部隊行軍時可能經過重要地點。使用「探索」才能發現部分村鎮、洞窟、隊友、怪物和寶藏。探索也能累積等級與軍資金。想挑戰用更短時間擊敗敵軍，也可以少做探索。要回到世界地圖，使用「營地」。</p>
+
+      <h3 id="diplomacy">外交</h3>
+      <p>選「外交」，先指定出使的部隊，再選外交對象。範圍包括部分城堡，以及我方部隊所在區域鄰近的中立部隊或敵軍。出使人物和時機都可能改變交涉結果。</p>
+      <p>直接用「部隊移動」進入他國領土，可能使中立國轉為敵對。可以觀察守衛的反應，再決定如何接觸。</p>
+
+      <h3 id="roster">編制</h3>
+      <p>「編制」可以調動隊員、建立部隊、解僱隊員和交換道具。隊員姓名前有頭盔標記，表示具備領導能力。每支部隊最左側的成員是隊長，由缺乏領導能力的人擔任隊長會使部隊變弱。艾雷斯的位置固定。最多可編制 20 支部隊。</p>
+
+      <h4>交換隊員或更改順序</h4>
+      <ol>
+        <li>選第一部隊，再從同區域的部隊中選第二部隊。只要調整同一支部隊的順序時，第一、第二部隊都選該部隊。</li>
+        <li>用滑鼠或數字鍵盤選一名隊員。反向的手指游標會標出已選位置。</li>
+        <li>選另一名隊員以交換位置，或選部隊最右側的空格將人移入。兩支部隊同時顯示時，也能在其中一支部隊內調整順序。</li>
+      </ol>
+
+      <h4>建立部隊</h4>
+      <p>第一部隊選要拆分的部隊，第二部隊選「新部隊」，再依交換隊員的方式將人移入。</p>
+
+      <h4>解僱隊員</h4>
+      <ol>
+        <li>第一部隊選要調整的部隊，第二部隊選「解僱」。</li>
+        <li>將要解僱的隊員移到下方清單。</li>
+        <li>按 <kbd>Esc</kbd>、數字鍵盤 <kbd>0</kbd> 或滑鼠右鍵開啟確認視窗，再選「解僱」。</li>
+      </ol>
+
+      <h4>裝備、交換與卸下道具</h4>
+      <ul>
+        <li>先選要調整的部隊，再選「ITEM BOX」開啟道具箱。</li>
+        <li>選一名隊員時，反向的手指游標會標出該隊員。再選另一名隊員可交換道具，或選道具箱內的道具來裝備。選中的道具名稱會以綠字顯示。</li>
+        <li>選隊員和「卸下」，可將裝備放回道具箱。其他區域的部隊也能透過同一個道具箱取用。</li>
+        <li>未鑑定的道具會顯示「道具效果不明」。可到有鑑定師的魔法店查明效果。</li>
+      </ul>
+
+      <h3 id="information">資料</h3>
+      <p>「資料」列出每支部隊的隊長、成員數、戰力和所在區域。選一支部隊可查看成員明細。排在第一位的是隊長，頭盔標記表示該成員具備領導能力。</p>
+      <table aria-label="部隊成員資料欄位">
+        <thead><tr><th scope="col">欄位</th><th scope="col">意義</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">NAME</th><td>成員姓名。</td></tr>
+          <tr><th scope="row">CLASS</th><td>職業。部分成員可轉職。</td></tr>
+          <tr><th scope="row">LV</th><td>等級，上限 99。成員加入時可能已有一定等級。</td></tr>
+          <tr><th scope="row">HP</th><td>生命力，上限 999。越高就越能承受傷害。</td></tr>
+          <tr><th scope="row">HR</th><td>生命力回復率，上限 16。數值越高，回復越快。</td></tr>
+          <tr><th scope="row">AT</th><td>攻擊力，上限 99。數值越高，攻擊造成的傷害越大。</td></tr>
+          <tr><th scope="row">AR</th><td>攻擊率，上限 99。數值越高，攻擊越容易成功。</td></tr>
+          <tr><th scope="row">DF</th><td>防禦力，上限 99。數值越高，所受傷害越少。</td></tr>
+          <tr><th scope="row">DR</th><td>防禦率，上限 99。數值越高，越不容易被敵人擊中。</td></tr>
+          <tr><th scope="row">AD</th><td>矢防禦力，上限 40。數值越高，箭矢造成的傷害越少。</td></tr>
+          <tr><th scope="row">AA</th><td>矢回避率，上限 16。數值越高，越容易避開箭矢。</td></tr>
+          <tr><th scope="row">MD</th><td>魔法防禦力，上限 40。數值越高，所受魔法傷害越少。</td></tr>
+          <tr><th scope="row">FT</th><td>疲勞值，上限 99。疲勞會降低 AT、AR、DF、DR 等能力。住旅店可大幅恢復，執行「時間經過」可少量恢復。</td></tr>
+          <tr><th scope="row">GE</th><td>地形效果。顯示 ＋ 時，表示該角色能在目前地形發揮較強的戰力。</td></tr>
+          <tr><th scope="row">ITEM</th><td>持有的道具。</td></tr>
+          <tr><th scope="row">EL+</th><td>強屬性。F、E、A、W 分別代表擅長抵抗火、土、風、水屬性。</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="power-map">勢力圖</h3>
+      <p>選「勢力圖」後，世界地圖左上會出現小地圖。白色方框標示目前的可見範圍。拖曳方框或直接點選小地圖，即可捲動世界地圖。勢力圖也會標出各國派出的部隊數與分布位置。</p>
+      <table aria-label="勢力圖國家顏色">
+        <thead><tr><th scope="col">勢力</th><th scope="col">顏色</th><th scope="col">關係</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">卡利恩</th><td>白色</td><td>艾雷斯治理的國家。卡利恩城位於最南端，失守即敗北。</td></tr>
+          <tr><th scope="row">波斯</th><td>紅色</td><td>主要敵國，控制中部至北方的大片領土，軍隊已渡河逼近卡利恩城。</td></tr>
+          <tr><th scope="row">休利亞</th><td>黃色</td><td>中立，守住屢遭雷斯達進攻的休利亞堡壘。</td></tr>
+          <tr><th scope="row">慕尼頓</th><td>藍色</td><td>中立，出兵普萊一帶。</td></tr>
+          <tr><th scope="row">格林斯</th><td>綠色</td><td>中立，已控制達賓村。</td></tr>
+          <tr><th scope="row">薩內多</th><td>淺藍色</td><td>中立，在肯特以北與雷斯達對峙。</td></tr>
+          <tr><th scope="row">雷斯達</th><td>粉紅色</td><td>中立，向薩內多及休利亞用兵。</td></tr>
+        </tbody>
+      </table>
+
+      <h3 id="save">記錄與結束遊戲</h3>
+      <p>在營地的世界地圖選「記錄」，再選存檔欄位。要離開遊戲，選「結束遊戲」並確認。</p>
+    </section>
+
+    <section id="keyboard">
+      <h2>快捷鍵</h2>
+      <p>數字方向鍵指鍵盤右側的數字鍵盤，方向鍵則指獨立的箭頭鍵。</p>
+      <table aria-label="鍵盤快捷鍵">
+        <thead><tr><th scope="col">按鍵</th><th scope="col">作用</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">數字鍵盤 <kbd>2</kbd>、<kbd>4</kbd>、<kbd>6</kbd>、<kbd>8</kbd></th><td>移動角色或選擇項目。</td></tr>
+          <tr><th scope="row"><kbd>Space</kbd></th><td>使用主動道具、射箭或施法。</td></tr>
+          <tr><th scope="row"><kbd>Enter</kbd></th><td>確定選項或繼續對話。</td></tr>
+          <tr><th scope="row"><kbd>Home</kbd></th><td>開啟區域地圖主選單。</td></tr>
+          <tr><th scope="row"><kbd>Esc</kbd>、數字鍵盤 <kbd>0</kbd></th><td>取消選取或關閉選單。</td></tr>
+          <tr><th scope="row"><kbd>Ctrl</kbd></th><td>按住時略過速度等待，以最高速執行。</td></tr>
+          <tr><th scope="row"><kbd>Tab</kbd></th><td>第一部隊在「一列隊型」與原隊型間切換。第二部隊依「隊型１」→「隊型２」→「隊型３」→「自訂」循環。</td></tr>
+          <tr><th scope="row"><kbd>←</kbd>、<kbd>→</kbd></th><td>選擇要操控的角色，再按 <kbd>Enter</kbd> 確定。</td></tr>
+          <tr><th scope="row"><kbd>↑</kbd></th><td>切換操控部隊。</td></tr>
+          <tr><th scope="row"><kbd>↓</kbd></th><td>開啟「下馬」選項。</td></tr>
+          <tr><th scope="row"><kbd>Shift</kbd></th><td>按住時暫時下達「撤退指令」。</td></tr>
+          <tr><th scope="row"><kbd>F1</kbd></th><td>進入營地。</td></tr>
+          <tr><th scope="row"><kbd>F3</kbd></th><td>開啟「魔法選擇」。</td></tr>
+          <tr><th scope="row"><kbd>F12</kbd></th><td>顯示或隱藏指令圖示。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="items">
+      <h2>道具</h2>
+      <p>有些魔法店設有鑑定師。鑑定過的道具可在營地用「編制」開啟道具箱，查看其效果。「道具效果不明」表示尚未鑑定。</p>
+      <p>道具分為持有即生效，以及需要操作才能生效的類型。要主動使用道具，操控持有者後按 <kbd>Space</kbd>，或在角色身上按滑鼠左鍵。相同召喚角色已在場時，再用道具也無法召喚同一角色。</p>
+      <table aria-label="原手冊列出的道具">
+        <thead><tr><th scope="col">使用後的狀態</th><th scope="col">道具</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">使用後消耗</th><td>復活之藥、體力回復藥、消除疲勞藥、解毒藥、石化解除藥、眼藥、巴克斯之酒、人蔘精、爆裂之石、黑暗之石、弓箭車。</td></tr>
+          <tr><th scope="row">使用後保留</th><td>閃電之劍、熾熱之劍、精靈之笛、天使之笛、吸血之笛、地之警笛、水之警笛、風之警笛、神之號角、貝殼、光之石、炎之石、閃電之石、冰的結晶。</td></tr>
+        </tbody>
+      </table>
+      <p>要把道具交給其他區域的我方部隊，可先存入道具箱，再由對方取出。</p>
+    </section>
+
+    <section id="spells">
+      <h2>魔法與施法者</h2>
+      <p>魔法店販售的魔法由具備施法能力的角色使用。有些角色一開始就會特定魔法或能力。先操控施法者，在「魔法選擇」指定要用的魔法，再按 <kbd>Space</kbd> 或在角色身上按滑鼠左鍵。各角色會哪些魔法，可以在加入後確認。</p>
+
+      <h3>魔法效果</h3>
+      <table aria-label="魔法效果">
+        <thead><tr><th scope="col">魔法</th><th scope="col">效果</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">召喚死者、召喚精靈、召喚天使</th><td>召喚數名對應的角色。日文版的「死神召喚」與「死者召喚」在繁中版均顯示為「召喚死者」。</td></tr>
+          <tr><th scope="row">分身</th><td>召喚與自己相同的角色。</td></tr>
+          <tr><th scope="row">火炎</th><td>放出火焰，對水屬性有效。</td></tr>
+          <tr><th scope="row">龍捲風</th><td>放出旋風，對土屬性有效。</td></tr>
+          <tr><th scope="row">地震</th><td>引發地震。</td></tr>
+          <tr><th scope="row">冰刀波</th><td>放出冰，對火屬性有效。</td></tr>
+          <tr><th scope="row">雷鳴</th><td>落雷攻擊，對風屬性有效。</td></tr>
+          <tr><th scope="row">導向火球</th><td>放出拖著火尾、會追蹤敵人的火球。</td></tr>
+          <tr><th scope="row">防護火網</th><td>讓火球繞著自己旋轉。</td></tr>
+          <tr><th scope="row">不死鳥</th><td>放出火鳥。</td></tr>
+          <tr><th scope="row">爆裂術</th><td>引發爆裂，對水屬性有全體效果。</td></tr>
+          <tr><th scope="row">暴風雪</th><td>降下冰雪，對火屬性有全體效果。</td></tr>
+          <tr><th scope="row">魔星</th><td>光系魔法，對土、風屬性有全體效果。</td></tr>
+          <tr><th scope="row">替身</th><td>變成身邊角色的模樣。</td></tr>
+          <tr><th scope="row">化石術</th><td>讓自己變成石頭。</td></tr>
+          <tr><th scope="row">煙幕</th><td>藏入煙霧中。</td></tr>
+          <tr><th scope="row">解毒</th><td>立刻解除中毒。</td></tr>
+          <tr><th scope="row">石化解除</th><td>立刻解除石化。</td></tr>
+          <tr><th scope="row">魔法壁</th><td>張開防護屏障。</td></tr>
+          <tr><th scope="row">蜘蛛絲</th><td>阻止對手移動。</td></tr>
+          <tr><th scope="row">毒霧</th><td>使對手中毒。</td></tr>
+          <tr><th scope="row">石化</th><td>使畫面內的敵人有機率石化。</td></tr>
+          <tr><th scope="row">混亂</th><td>使敵人彼此攻擊。</td></tr>
+          <tr><th scope="row">讀心術</th><td>查看敵方狀態。</td></tr>
+          <tr><th scope="row">戰線脫離</th><td>角色遇險時瞬間轉移。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>施法者</h3>
+      <p>原手冊列出以下施法者。能否加入我方取決於劇情與交涉。</p>
+      <table aria-label="施法者名單">
+        <thead><tr><th scope="col">角色</th><th scope="col">身分</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">艾雷斯</th><td>卡利恩王，轉職後可施法。</td></tr>
+          <tr><th scope="row">卡拉</th><td>魔法師的弟子。</td></tr>
+          <tr><th scope="row">施奇</th><td>祈禱師。</td></tr>
+          <tr><th scope="row">雷克斯</th><td>休利亞王子。</td></tr>
+          <tr><th scope="row">歐里巴</th><td>雷斯達軍師。</td></tr>
+          <tr><th scope="row">羅拉</th><td>格林斯神官。</td></tr>
+          <tr><th scope="row">伊索魯迪</th><td>波斯軍的魔女。</td></tr>
+          <tr><th scope="row">比爾波斯</th><td>特拉斯族的隊長。</td></tr>
+          <tr><th scope="row">尼米</th><td>水之妖精王。</td></tr>
+          <tr><th scope="row">波路堤斯</th><td>風之妖精王。</td></tr>
+          <tr><th scope="row">弗瑞亞</th><td>土之妖精王。</td></tr>
+          <tr><th scope="row">赫爾格</th><td>貝尼庫王。</td></tr>
+          <tr><th scope="row">伊魯蘭斯</th><td>精靈魔法師。</td></tr>
+          <tr><th scope="row">亞魯新普</th><td>神父。</td></tr>
+        </tbody>
+      </table>
+
+      <h3>角色的特殊能力</h3>
+      <p>下列角色以自己的特殊能力行動，無法在魔法店添購魔法。遊戲中還有其他具備特殊能力的角色。</p>
+      <table aria-label="角色的特殊能力">
+        <thead><tr><th scope="col">角色</th><th scope="col">能力</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">卡魯</th><td>可在「魔法選擇」更換獸衣，改變自身能力。</td></tr>
+          <tr><th scope="row">阿波羅</th><td>詩人，以不同的歌支援隊伍。</td></tr>
+          <tr><th scope="row">特拉斯族</th><td>能得知敵人的能力。</td></tr>
+          <tr><th scope="row">格雷</th><td>遇險時可瞬間轉移。</td></tr>
+          <tr><th scope="row">杜拉克</th><td>揮舞有特殊力量的鞭子。</td></tr>
+          <tr><th scope="row">克莉斯丁</th><td>護士，能在戰場上治療同伴。</td></tr>
+          <tr><th scope="row">凱西</th><td>似乎擅長偷取物品。</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="characters">
+      <h2>登場人物</h2>
+
+      <h3>卡利恩及援軍</h3>
+      <dl>
+        <dt>艾雷斯</dt><dd>卡利恩的年輕國王，也是故事的主角。</dd>
+        <dt>愛倫</dt><dd>艾雷斯的戀人，勇敢的戰士。</dd>
+        <dt>孔萊多</dt><dd>卡利恩老將。</dd>
+        <dt>萊姆拉克</dt><dd>卡利恩的軍師，在對波斯作戰時失蹤。</dd>
+        <dt>耶克達</dt><dd>卡利恩的武將，也在對波斯作戰時失蹤。</dd>
+        <dt>阿魯富特</dt><dd>希臘半島女王艾拉之子，得知洛克莉斯陷入危機後趕來支援。</dd>
+        <dt>羅夫</dt><dd>希臘半島弗蘭克王國的老將。</dd>
+        <dt>基爾漢</dt><dd>羅夫的兒子，勇猛過人，做事有些冒失。</dd>
+        <dt>利斯萊姆</dt><dd>羅夫的同僚，是一位豪傑。</dd>
+      </dl>
+
+      <h3>精靈王</h3>
+      <dl>
+        <dt>尼米</dt><dd>水之妖精王，也是洛克莉斯眾妖精的女王。</dd>
+        <dt>費里爾</dt><dd>森林妖精王，似乎身體欠佳。</dd>
+        <dt>波路堤斯</dt><dd>統領風之妖精。</dd>
+        <dt>弗瑞亞</dt><dd>土之妖精王，與土精靈一同生活。</dd>
+      </dl>
+
+      <h3>薩內多</h3>
+      <dl>
+        <dt>伊爾克特</dt><dd>薩內多的精靈王，正與雷斯達交戰。</dd>
+      </dl>
+
+      <h3>雷斯達</h3>
+      <dl>
+        <dt>歐魯特</dt><dd>勢力強大的雷斯達國王。</dd>
+        <dt>歐里巴</dt><dd>懂得施法的軍師。</dd>
+        <dt>多古太夫</dt><dd>體力出眾的武將。</dd>
+        <dt>安</dt><dd>擅長用劍的女戰士。</dd>
+      </dl>
+
+      <h3>格林斯</h3>
+      <dl>
+        <dt>馬帝斯</dt><dd>山國格林斯的國王，拿女兒們沒辦法。</dd>
+        <dt>弗里森</dt><dd>格林斯勇敢的公主。</dd>
+        <dt>雪爾維亞</dt><dd>喜愛冒險，常到外地走動的公主。</dd>
+        <dt>阿波羅</dt><dd>歌聲據說具有神祕力量的詩人。</dd>
+        <dt>格雷</dt><dd>頑固的老軍師。</dd>
+      </dl>
+
+      <h3>休利亞</h3>
+      <dl>
+        <dt>雷克斯</dt><dd>年長的王子，先王去世後仍未繼位。</dd>
+        <dt>傑蘭</dt><dd>弟弟，是位勇敢的騎士。</dd>
+        <dt>蘭米</dt><dd>休利亞的軍師。</dd>
+      </dl>
+
+      <h3>慕尼頓</h3>
+      <dl>
+        <dt>歐納斯</dt><dd>慕尼頓國王，對外敵意強烈。</dd>
+        <dt>哥倫哥</dt><dd>個性有些古怪的戰士。</dd>
+        <dt>曼克絲</dt><dd>慕尼頓的武將。</dd>
+      </dl>
+
+      <h3>馬爾頓、里美利克、諾福克瀑布與薩姆</h3>
+      <dl>
+        <dt>杜魯童</dt><dd>馬爾頓的土精靈之王。</dd>
+        <dt>伊克利福</dt><dd>里美利克的特達羅之王，統領半人半獸的族人。</dd>
+        <dt>克萊茵</dt><dd>住在諾福克瀑布的特拉斯族之王。</dd>
+        <dt>科來安</dt><dd>薩姆的哥布林王，心思難以捉摸。</dd>
+      </dl>
+
+      <h3>波斯軍</h3>
+      <dl>
+        <dt>塞內爾</dt><dd>造出人造人並藉此壯大軍力的波斯國王。</dd>
+        <dt>宙</dt><dd>從大陸渡海而來的魔法師。</dd>
+        <dt>伊索魯迪</dt><dd>據說是波斯最強的魔女。</dd>
+        <dt>亞蘭貝</dt><dd>波斯軍的副將。</dd>
+      </dl>
+      <h4>波斯四將</h4>
+      <p>四人都得到塞內爾以魔法賦予的力量。馬克加亞是土將軍，史利多芙是風將軍，摩魯多是火將軍，歐格是水將軍。</p>
+
+      <h3>波斯陣營的國王與將領</h3>
+      <dl>
+        <dt>米爾</dt><dd>幻之城阿魯卡城的國王。</dd>
+        <dt>赫爾格</dt><dd>沼澤城堡貝尼庫城的國王，借助魔王的力量，從大陸帶來並操縱大鱷魚。</dd>
+        <dt>奧萊西南</dt><dd>諾福克國王，行事不負責任。</dd>
+        <dt>加賓</dt><dd>雙子城之一東馬西亞城的國王。</dd>
+        <dt>柯爾賓</dt><dd>東馬西亞的王子。</dd>
+        <dt>路西安斯</dt><dd>雙子城之一西馬西亞城的國王，也是難逢敵手的騎士。</dd>
+        <dt>雷斯夫</dt><dd>西馬西亞的軍師。</dd>
+        <dt>萊歐斯</dt><dd>深得民心的里雷城主。劇情對話也稱他為「賴爾斯」。</dd>
+        <dt>馬雷</dt><dd>耶通盧國王，生性膽怯。</dd>
+        <dt>薩格</dt><dd>鎮守波斯後方的聖多凡國王。</dd>
+      </dl>
+    </section>
+
+    <section id="tips">
+      <h2>轉職、成長與招募</h2>
+
+      <h3 id="classes">轉職</h3>
+      <p>等級上限是 99，轉職後會保留等級，也可以維持目前職業繼續升級。不同職業可能讓角色較不容易逃跑、能反彈箭矢，或取得擔任隊長的資格。</p>
+      <dl>
+        <dt>在武器店轉職</dt>
+        <dd>符合條件的角色可付費轉職，例如讓他國兵士改編為我方兵士、讓兵士成為弓兵，或讓「士兵」轉成「戰士」。費用因轉職對象而異。</dd>
+        <dt>讓卡利恩士兵成為騎士</dt>
+        <dd>士兵達到所需等級後，可由卡利恩城的大主教授予騎士稱號，取得領導部隊的資格。在世界地圖選「外交」和「卡利恩城」，派該士兵所在的部隊前往王室深處找大主教。</dd>
+        <dt>讓騎士成為騎兵</dt>
+        <dd>卡利恩的騎士可以在某處的馬廄轉為騎兵，也可透過「外交」前往。部分劇情事件也會使角色轉職。</dd>
+      </dl>
+
+      <h3 id="levels">提升等級</h3>
+      <p>升級依據是命中敵人的次數。攻擊率（AR）高的角色通常更快提高等級。</p>
+
+      <h3 id="fatigue">疲勞累積與恢復</h3>
+      <p>每次攻擊敵人或遭受攻擊都會累積疲勞（FT），戰力也會隨之下降。強者較容易疲勞，與防禦高的敵人作戰時也容易累積疲勞。</p>
+      <p>讓部隊休息即可逐漸恢復，也可用道具或住旅店恢復。作戰時可輪換部隊，避免同一支部隊連續交戰。城內的敵方隊長和部隊在戰後回復得較快，宜盡量一戰取勝。</p>
+
+      <h3 id="allies">爭取盟友</h3>
+      <p>從世界地圖選「外交」前往對方首領所在處，可以接觸中立國或敵方將領。時機、局勢和出使者會影響結果。先貿然進軍也可能使局勢改變。與一方結盟有時會使另一方敵對，原手冊建議可依喜好選擇盟友。</p>
+
+      <h3 id="recruit">招降敵人</h3>
+      <p>擊倒敵方隊長後，人形敵兵有時會倒戈，逃跑的敵兵較有可能加入。從兩側包抄，也可能比較容易捕獲他們。</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>譯文按呉ソフトウエア工房的官方網頁編排，並用遊戲附帶的 Windows 說明檔核對。遊戲內名稱沿用繁中移植版。「泰納里斯河」與「艾拉」按日文讀音補譯。<a href="http://www.kure.sakura.ne.jp/FQ1NEXT/FQ234TXT/Fq4manual.html" hreflang="ja">日文原文</a></p>
+    <p><a href="#contents">返回目錄</a></p>
+  </footer>
+</body>
+</html>
