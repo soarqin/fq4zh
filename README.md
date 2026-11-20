@@ -4,18 +4,14 @@
 
 ## 构建准备
 
-在 Windows 上准备 Python 3.9 或更新版本，以及以下两个原版游戏目录。
+在 Windows 上安装 uv，并准备以下两个原版游戏目录。[uv 安装说明](https://docs.astral.sh/uv/getting-started/installation/)
 
 - Windows 日文版 v1.10 的完整游戏目录。
 - DOS 官方繁体中文版的游戏目录。
 
 构建脚本会校验 Windows 版 `fq4.exe` 和 DOS 版 `MAIN.EXE`、`FQ4MES` 的 SHA-256。
 
-在仓库根目录安装 Python 依赖。
-
-```powershell
-python -m pip install pefile opencc-python-reimplemented==0.1.7
-```
+项目需要 Python 3.9 或更新版本。首次运行构建命令时，uv 会创建项目环境，并按 `uv.lock` 安装依赖。也可在仓库根目录运行 `uv sync --locked` 提前准备环境。
 
 ## 构建
 
@@ -24,13 +20,13 @@ python -m pip install pefile opencc-python-reimplemented==0.1.7
 ### 构建中文版游戏
 
 ```powershell
-python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录"
+uv run --locked python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录"
 ```
 
 默认构建繁体版，输出目录为 `dist\FQ4`。构建简体版时加入 `--locale zh-CN`，输出目录为 `dist\FQ4-zh-CN`。
 
 ```powershell
-python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录" --locale zh-CN
+uv run --locked python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录" --locale zh-CN
 ```
 
 每个输出目录都包含中文版 `fq4.exe` 和复制的游戏资源。游戏内简体使用黑体（SimHei），属于 Windows 的简体中文补充字体。游戏内繁体使用微软正黑体。
@@ -40,7 +36,7 @@ python .\tools\build.py --win "Windows 版目录" --dos "DOS 版目录" --locale
 安装 MSVC x86 C++ 工具链和 Windows SDK。在 Visual Studio 的 x86 本机工具命令提示符中进入仓库根目录，再运行下面的命令。
 
 ```bat
-python .\tools\build_patcher.py --win "Windows 版目录" --dos "DOS 版目录"
+uv run --locked python .\tools\build_patcher.py --win "Windows 版目录" --dos "DOS 版目录"
 ```
 
 默认生成 `dist\FQ4ChinesePatch.exe`。简繁补丁均内置于工具，生成的 EXE 可直接运行。
@@ -61,3 +57,7 @@ python .\tools\build_patcher.py --win "Windows 版目录" --dos "DOS 版目录"
 ## 游戏手册
 
 用浏览器打开对应的 HTML 手册，可离线查阅剧情、游戏操作和快捷键。[简体中文游戏手册](docs/FQ4-manual-zh-Hans.html) · [繁體中文遊戲手冊](docs/FQ4-manual-zh-Hant.html)
+
+## 开发验证
+
+截图和补丁验证脚本使用默认的 `dev` 依赖组。运行 `work\ida` 下的分析脚本时，需配置 IDA Pro，选择与其兼容的 Python 版本（3.10 或更新），并使用 `uv run --locked --group ida`。

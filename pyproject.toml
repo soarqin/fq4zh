@@ -1,0 +1,23 @@
+[project]
+name = "fq4zh"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "opencc-python-reimplemented==0.1.7",
+    "pefile",
+]
+
+[dependency-groups]
+dev = [
+    "pillow",
+    "psutil",
+]
+ida = [
+    "ida-domain==0.5.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.dependency-groups]
+ida = { requires-python = ">=3.10" }
