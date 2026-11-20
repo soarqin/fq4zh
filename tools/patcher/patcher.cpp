@@ -22,6 +22,7 @@ namespace {
 namespace fs = std::filesystem;
 using Bytes = std::vector<std::uint8_t>;
 constexpr auto kTitle = L"First Queen IV 中文补丁";
+constexpr auto kVersionHint = L"支持此次校验的 Windows 日文版 v1.10。";
 
 struct PatchError {
     std::wstring message;
@@ -294,6 +295,7 @@ void apply(HWND dialog, bool launch) {
 INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM) {
     try {
         if (message == WM_INITDIALOG) {
+            SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
             std::array<wchar_t, 32768> path{};
             const auto length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
             if (length > 0 && length < path.size()) {
@@ -304,14 +306,21 @@ INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM) {
             }
             return TRUE;
         }
-        if (message == WM_COMMAND && HIWORD(param) == BN_CLICKED) {
+        if (message == WM_COMMAND) {
+            const auto notification = HIWORD(param);
+            if (LOWORD(param) == IDC_SOURCE && notification == EN_CHANGE) {
+                SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
+                return TRUE;
+            }
+            if (notification != BN_CLICKED)
+                return FALSE;
             switch (LOWORD(param)) {
             case IDC_BROWSE:
                 browse(dialog);
                 return TRUE;
             case IDC_WRITE:
             case IDC_LAUNCH:
-                SetDlgItemTextW(dialog, IDC_STATUS, L"");
+                SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
                 apply(dialog, LOWORD(param) == IDC_LAUNCH);
                 return TRUE;
             case IDCANCEL:
