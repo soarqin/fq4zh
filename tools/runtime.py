@@ -142,6 +142,9 @@ def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb)
     assert pe.section(b'.fq4uni', code.finish(), 0x60000020) == base
     patch_name_cells(pe, name_readers, indexed_name)
     pe.patch(0x443657, bytes.fromhex('85c05f7415'), b'\xe9' + struct.pack('<i', reverb_fallback - 0x44365C))
+    # The WAV resource IDs start at 4000. Use their two-digit offsets so
+    # DirectMusic's ANSI-to-Unicode conversion preserves unique cache keys.
+    pe.patch(0x442FD5, b'\x80\xc2\x30', b'\x80\xc2\xa0')  # add dl, '0' - 400 (mod 256)
     for address, stub, original in ((0x40FAAF, caption_name, '3c20894c2410'),
                                     (0x40FD7A, caption_spell, '3c2089542410')):
         pe.patch(address, bytes.fromhex(original), b'\xe9' + struct.pack('<i', stub - address - 5) + b'\x90')
