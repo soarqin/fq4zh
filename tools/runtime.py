@@ -2,6 +2,7 @@ import re
 import struct
 
 from captions import emit_caption_hooks, emit_status_name
+from name_cells import emit_name_cells, patch_name_cells
 from reverb import emit_reverb_fallback
 
 
@@ -136,7 +137,10 @@ def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb)
     caption_name, caption_spell = emit_caption_hooks(code, glyph_decode)
     status_name = emit_status_name(code)
 
+    name_readers, indexed_name = emit_name_cells(code)
+
     assert pe.section(b'.fq4uni', code.finish(), 0x60000020) == base
+    patch_name_cells(pe, name_readers, indexed_name)
     pe.patch(0x443657, bytes.fromhex('85c05f7415'), b'\xe9' + struct.pack('<i', reverb_fallback - 0x44365C))
     for address, stub, original in ((0x40FAAF, caption_name, '3c20894c2410'),
                                     (0x40FD7A, caption_spell, '3c2089542410')):
