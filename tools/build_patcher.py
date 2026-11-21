@@ -9,6 +9,7 @@ import pefile
 
 from build import build
 from catalog import ROOT, WORK, original_exe
+from package_release import project_version
 
 
 PATCHER = ROOT / 'tools' / 'patcher'
@@ -123,15 +124,28 @@ def make_payload(original, chinese, work, locale):
     }, indent=2) + '\n', encoding='utf-8')
 
 
-def build_patcher(windows, dos, output, work):
+def build_patcher(windows, dos, output, work, *, payload_dir=None):
     if not shutil.which('cl.exe') or not shutil.which('rc.exe'):
         raise SystemExit('Run the build from an x86 Native Tools Command Prompt for Visual Studio.')
-    original = original_exe(windows)
-    for locale, suffix in (('zh-TW', ''), ('zh-CN', '-zh-CN')):
-        image = work / ('image' + suffix)
-        build(windows, dos, image, work / ('translation' + suffix),
-              locale=locale, memory_compatible=True)
-        make_payload(original, (image / 'fq4.exe').read_bytes(), work, locale)
+    version = project_version()
+    work.mkdir(parents=True, exist_ok=True)
+    if payload_dir is None:
+        original = original_exe(windows)
+        for locale, suffix in (('zh-TW', ''), ('zh-CN', '-zh-CN')):
+            image = work / ('image' + suffix)
+            build(windows, dos, image, work / ('translation' + suffix),
+                  locale=locale, memory_compatible=True)
+            make_payload(original, (image / 'fq4.exe').read_bytes(), work, locale)
+    else:
+        for name in ('patch_data.hpp', 'patch_data_cn.hpp', 'payload.bin', 'payload_cn.bin'):
+            shutil.copyfile(payload_dir / name, work / name)
+
+    numbers = ','.join(version.split('.') + ['0'])
+    (work / 'patcher_version.h').write_text(
+        f'#define FQ4_VERSION "{version}"\n'
+        f'#define FQ4_VERSION_NUMERIC {numbers}\n'
+        f'#define FQ4_CAPTION "First Queen IV 中文补丁 v{version}"\n',
+        encoding='utf-8')
 
     resources = work / 'patcher.res'
     subprocess.run(['rc.exe', '/nologo', '/fo', str(resources), '/I', str(work),
@@ -152,9 +166,20 @@ def build_patcher(windows, dos, output, work):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build the standalone First Queen IV Chinese patcher.')
-    parser.add_argument('--win', type=Path, required=True, help='Windows Japanese v1.10 game directory')
-    parser.add_argument('--dos', type=Path, required=True, help='Traditional Chinese DOS game directory')
+    parser.add_argument('--win', type=Path, help='Windows Japanese v1.10 game directory')
+    parser.add_argument('--dos', type=Path, help='Traditional Chinese DOS game directory')
+    parser.add_argument('--payload-dir', type=Path, help='Directory containing the generated patch data')
     parser.add_argument('--out', type=Path, default=ROOT / 'dist' / 'FQ4ChinesePatch.exe')
     parser.add_argument('--work', type=Path, default=BUILD_DIR)
     args = parser.parse_args()
-    build_patcher(args.win.resolve(), args.dos.resolve(), args.out.resolve(), args.work.resolve())
+    if args.payload_dir is None:
+        if args.win is None or args.dos is None:
+            parser.error('Specify both --win and --dos, or use --payload-dir.')
+        build_patcher(args.win.resolve(), args.dos.resolve(), args.out.resolve(), args.work.resolve())
+    else:
+        if args.win is not None or args.dos is not None:
+            parser.error('--payload-dir cannot be combined with --win or --dos.')
+        if args.payload_dir.resolve() == args.work.resolve():
+            parser.error('Choose different directories for --payload-dir and --work.')
+        build_patcher(None, None, args.out.resolve(), args.work.resolve(),
+                      payload_dir=args.payload_dir.resolve())

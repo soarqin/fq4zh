@@ -1,0 +1,28 @@
+# Changelog
+
+本文件记录项目各版本的主要改动。格式参照 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)，版本号遵循 [Semantic Versioning](https://semver.org/spec/v2.0.0.html)。
+
+## [Unreleased]
+
+## [1.0.0] - 2026-11-21
+
+### Added
+
+- 将 DOS 版官方繁体文本移植到 Windows 日文版 v1.10，并提供使用大陆常用术语的简体版。
+- 提供单文件补丁工具，可切换简繁语言、生成中文版 EXE 或以内存补丁启动游戏。
+- 提供简体和繁体的离线 HTML 游戏手册。
+- 补丁工具标题显示版本号，GitHub Actions 在推送版本标签后构建并发布补丁包。
+- 项目源代码采用 MIT 许可。
+
+### Changed
+
+- 使用 uv 和锁文件管理 Python 构建依赖。
+- 游戏内简体使用黑体，繁体使用微软正黑体，并按原版字格调整字形比例。
+
+### Fixed
+
+- 修复地图部队名、状态栏等位置的中文显示问题，并校正繁体文字的垂直位置。
+- 为音效特效初始化提供兼容性回退。
+
+[Unreleased]: https://github.com/soarqin/fq4zh/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.0

@@ -1,10 +1,12 @@
 [project]
 name = "fq4zh"
-version = "0.1.0"
+version = "1.0.0"
+license = "MIT"
 requires-python = ">=3.9"
 dependencies = [
     "opencc-python-reimplemented==0.1.7",
     "pefile",
+    "tomli; python_version < '3.11'",
 ]
 
 [dependency-groups]

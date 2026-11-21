@@ -1,10 +1,11 @@
 #pragma code_page(65001)
 #include <windows.h>
 #include "resource.h"
+#include "patcher_version.h"
 
 IDD_PATCHER DIALOGEX 0, 0, 318, 109
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX
-CAPTION "First Queen IV 中文补丁"
+CAPTION FQ4_CAPTION
 FONT 9, "Microsoft YaHei UI"
 BEGIN
     LTEXT           "日文版游戏 EXE", -1, 12, 10, 250, 11
@@ -20,3 +21,26 @@ END
 
 IDR_PAYLOAD RCDATA "payload.bin"
 IDR_PAYLOAD_CN RCDATA "payload_cn.bin"
+
+1 VERSIONINFO
+FILEVERSION FQ4_VERSION_NUMERIC
+PRODUCTVERSION FQ4_VERSION_NUMERIC
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "First Queen IV Chinese Patch"
+            VALUE "FileVersion", FQ4_VERSION
+            VALUE "ProductName", "First Queen IV Chinese Patch"
+            VALUE "ProductVersion", FQ4_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1200
+    END
+END

@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: false
+          version: '0.12.13'
+      - name: Compile the x86 patcher
+        shell: pwsh
+        run: |
+          $installer = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer'
+          $vswhere = Join-Path $installer 'vswhere.exe'
+          $vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$vs) { throw 'The MSVC x86 toolchain is required.' }
+          $vcvars = Join-Path $vs 'VC\Auxiliary\Build\vcvars32.bat'
+          $env:Path = "$installer;$env:Path"
+          cmd /d /c "call `"$vcvars`" && uv run --locked --no-dev python tools/build_patcher.py --payload-dir patches"
+          exit $LASTEXITCODE
+      - name: Package the release
+        run: uv run --locked --no-dev python tools/package_release.py --tag "$env:GITHUB_REF_NAME"
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$env:GITHUB_REF_NAME" "dist/FQ4ChinesePatch-$env:GITHUB_REF_NAME.zip" --verify-tag --title "First Queen IV 中文补丁 $env:GITHUB_REF_NAME" --notes-file dist/release-notes.md

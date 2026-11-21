@@ -4,7 +4,7 @@
 
 ## 构建准备
 
-在 Windows 上安装 uv，并准备以下两个原版游戏目录。[uv 安装说明](https://docs.astral.sh/uv/getting-started/installation/)
+在 Windows 上安装 uv。构建中文版游戏或重新生成补丁数据时，还需准备以下两个原版游戏目录。[uv 安装说明](https://docs.astral.sh/uv/getting-started/installation/)
 
 - Windows 日文版 v1.10 的完整游戏目录。
 - DOS 官方繁体中文版的游戏目录。
@@ -15,7 +15,7 @@
 
 ## 构建
 
-从仓库根目录运行构建命令。`--win` 和 `--dos` 都是必填参数，分别指定 Windows 版和 DOS 版的游戏目录。将示例中引号内的文字替换为实际路径。
+从仓库根目录运行构建命令。使用原版游戏文件构建时，必须通过 `--win` 和 `--dos` 指定 Windows 版和 DOS 版的游戏目录。将示例中引号内的文字替换为实际路径。
 
 ### 构建中文版游戏
 
@@ -36,10 +36,16 @@ uv run --locked python .\tools\build.py --win "Windows 版目录" --dos "DOS 版
 安装 MSVC x86 C++ 工具链和 Windows SDK。在 Visual Studio 的 x86 本机工具命令提示符中进入仓库根目录，再运行下面的命令。
 
 ```bat
-uv run --locked python .\tools\build_patcher.py --win "Windows 版目录" --dos "DOS 版目录"
+uv run --locked python .\tools\build_patcher.py --payload-dir .\patches
 ```
 
-默认生成 `dist\FQ4ChinesePatch.exe`。简繁补丁均内置于工具，生成的 EXE 可直接运行。
+编译使用 `patches` 目录中已生成的简繁补丁数据，默认生成可直接运行的 `dist\FQ4ChinesePatch.exe`。
+
+改动汉化内容或补丁逻辑后，用原版文件重新生成补丁数据，并将 `work\patcher` 中的 `patch_data.hpp`、`patch_data_cn.hpp`、`payload.bin` 和 `payload_cn.bin` 更新到 `patches`。
+
+```bat
+uv run --locked python .\tools\build_patcher.py --win "Windows 版目录" --dos "DOS 版目录"
+```
 
 ## 使用
 
@@ -49,7 +55,7 @@ uv run --locked python .\tools\build_patcher.py --win "Windows 版目录" --dos 
 
 ### 使用单文件补丁工具
 
-双击生成的 `dist\FQ4ChinesePatch.exe`，通过「浏览…」选择 Windows 日文版 v1.10 的 `fq4.exe`。在「游戏语言」中选择「繁體中文」或「简体中文」，再选择一种启动方式。
+从 [GitHub Releases](https://github.com/soarqin/fq4zh/releases) 下载并解压补丁包，或使用本地构建结果。双击 `FQ4ChinesePatch.exe`，通过「浏览…」选择 Windows 日文版 v1.10 的 `fq4.exe`。在「游戏语言」中选择「繁體中文」或「简体中文」，再选择一种启动方式。
 
 - 「生成中文版 EXE」在原版游戏目录生成可以双击启动的程序。繁体版文件名为 `fq4.zh.exe`，简体版为 `fq4.zh-CN.exe`。已有同名文件时，工具会复用内容相同的文件，或提示先重命名内容不同的文件。
 - 「以内存补丁启动」立即启动游戏，汉化仅在本次运行中生效。游戏从原版目录读取资源和存档。
@@ -61,3 +67,11 @@ uv run --locked python .\tools\build_patcher.py --win "Windows 版目录" --dos 
 ## 开发验证
 
 截图和补丁验证脚本使用默认的 `dev` 依赖组。运行 `work\ida` 下的分析脚本时，需配置 IDA Pro，选择与其兼容的 Python 版本（3.10 或更新），并使用 `uv run --locked --group ida`。
+
+## 发布
+
+更新 `pyproject.toml` 中的版本号和 [变更日志](CHANGELOG.md)，运行 `uv lock` 后提交。推送对应的 `v主版本.次版本.修订号` 标签会触发 GitHub Actions，从仓库里的补丁数据编译 EXE，并发布包含补丁、简繁手册和项目说明的 ZIP。
+
+## 许可
+
+本项目的源代码采用 [MIT 许可证](LICENSE)。游戏、原版资源和游戏说明文档的相关权利归各自权利人所有。
