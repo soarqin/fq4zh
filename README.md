@@ -72,6 +72,8 @@ uv run --locked python .\tools\build_patcher.py --win "Windows 版目录" --dos 
 
 更新 `pyproject.toml` 中的版本号和 [变更日志](CHANGELOG.md)，运行 `uv lock` 后提交。推送对应的 `v主版本.次版本.修订号` 标签会触发 GitHub Actions，从仓库里的补丁数据编译 EXE，并发布包含补丁、简繁手册和项目说明的 ZIP。
 
+需要补跑时，在 GitHub 的 Release 工作流中手动运行并选择已推送的标签。
+
 ## 许可
 
 本项目的源代码采用 [MIT 许可证](LICENSE)。游戏、原版资源和游戏说明文档的相关权利归各自权利人所有。

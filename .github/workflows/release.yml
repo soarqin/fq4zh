@@ -3,17 +3,26 @@ name: Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag, such as v1.0.0
+        required: true
+        type: string
 
 jobs:
   release:
     runs-on: windows-latest
     permissions:
       contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: false
@@ -30,9 +39,9 @@ jobs:
           cmd /d /c "call `"$vcvars`" && uv run --locked --no-dev python tools/build_patcher.py --payload-dir patches"
           exit $LASTEXITCODE
       - name: Package the release
-        run: uv run --locked --no-dev python tools/package_release.py --tag "$env:GITHUB_REF_NAME"
+        run: uv run --locked --no-dev python tools/package_release.py --tag "$env:RELEASE_TAG"
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$env:GITHUB_REF_NAME" "dist/FQ4ChinesePatch-$env:GITHUB_REF_NAME.zip" --verify-tag --title "First Queen IV 中文补丁 $env:GITHUB_REF_NAME" --notes-file dist/release-notes.md
+          gh release create "$env:RELEASE_TAG" "dist/FQ4ChinesePatch-$env:RELEASE_TAG.zip" --verify-tag --title "First Queen IV 中文补丁 $env:RELEASE_TAG" --notes-file dist/release-notes.md
