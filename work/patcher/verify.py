@@ -14,11 +14,14 @@ WORK = Path(__file__).resolve().parent
 ROOT = WORK.parents[1]
 sys.path.insert(0, str(WORK.parent / 'labels'))
 from check import check, focus_game
+from package_release import project_version
 import smoke
 from smoke import ENUM, USER, await_value, caption, ct, windows
 
 SOURCE_CONTROL, BROWSE_BUTTON, WRITE_BUTTON, LAUNCH_BUTTON, STATUS_CONTROL = range(1001, 1006)
-TOOL_TITLE = 'First Queen IV 中文补丁'
+TRADITIONAL_BUTTON, SIMPLIFIED_BUTTON = 1006, 1007
+DISK_DETAIL = 1016
+TOOL_TITLE = f'First Queen IV 中文补丁 v{project_version()}'
 
 
 def digest(path):
@@ -78,7 +81,7 @@ def verify(candidate):
     metadata = json.loads((WORK / 'payload.json').read_text(encoding='utf-8'))
     assert original_hash == metadata['source_sha256']
     dlls = {entry.dll.decode('ascii').upper() for entry in pefile.PE(str(tool_exe)).DIRECTORY_ENTRY_IMPORT}
-    assert dlls <= {'KERNEL32.DLL', 'USER32.DLL', 'COMDLG32.DLL', 'BCRYPT.DLL'}, dlls
+    assert dlls <= {'KERNEL32.DLL', 'USER32.DLL', 'COMDLG32.DLL', 'BCRYPT.DLL', 'GDI32.DLL'}, dlls
 
     patcher = subprocess.Popen([str(tool_exe)], cwd=portable)
     parent = psutil.Process(patcher.pid)
@@ -164,6 +167,13 @@ def verify(candidate):
     try:
         dialog = await_value(lambda: next((w for w in windows(patcher.pid) if caption(w) == TOOL_TITLE), None))
         assert caption(USER.GetDlgItem(dialog, WRITE_BUTTON)) == '生成中文版 EXE'
+        focus_game(dialog)
+        assert USER.IsDlgButtonChecked(dialog, TRADITIONAL_BUTTON) == 1
+        detail = USER.GetDlgItem(dialog, DISK_DETAIL)
+        for ident, suffix in ((SIMPLIFIED_BUTTON, '.zh-CN.exe'), (TRADITIONAL_BUTTON, '.zh.exe')):
+            USER.SendMessageW(USER.GetDlgItem(dialog, ident), 0xF5, 0, 0)  # BM_CLICK
+            assert USER.IsDlgButtonChecked(dialog, ident) == 1
+            assert suffix in caption(detail)
         browse_source()
         report['original_selected_through_file_chooser'] = True
 

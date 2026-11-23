@@ -4,6 +4,7 @@
 #define NOMINMAX
 #include <windows.h>
 #include <bcrypt.h>
+#include <commctrl.h>
 #include <commdlg.h>
 
 #include <array>
@@ -23,7 +24,7 @@ namespace {
 namespace fs = std::filesystem;
 using Bytes = std::vector<std::uint8_t>;
 constexpr auto kTitle = L"First Queen IV 中文补丁";
-constexpr auto kVersionHint = L"支持此次校验的 Windows 日文版 v1.10。";
+constexpr auto kVersionHint = L"支持 Windows 日文版 v1.10 的原始 EXE。";
 
 struct PatchRecord {
     std::uint32_t file_offset, rva, size;
@@ -270,6 +271,183 @@ void launch_chinese(const fs::path& source, const Bytes& original, const std::ui
     game.started = true;
 }
 
+// Dialog units match the controls in patcher.rc.
+constexpr RECT kSourceFrame{118, 60, 382, 77};
+constexpr COLORREF kCanvas = RGB(24, 31, 37);
+constexpr COLORREF kPanel = RGB(35, 44, 51);
+constexpr COLORREF kRule = RGB(74, 88, 92);
+constexpr COLORREF kHighlight = RGB(49, 66, 70);
+constexpr COLORREF kInk = RGB(236, 231, 211);
+constexpr COLORREF kMuted = RGB(174, 187, 180);
+constexpr COLORREF kGold = RGB(238, 195, 118);
+constexpr COLORREF kMint = RGB(128, 199, 169);
+
+struct DialogStyle {
+    HFONT heading_font = nullptr;
+    HFONT body_font = nullptr;
+    bool high_contrast = false;
+    bool success = false;
+};
+
+void update_contrast(HWND dialog, DialogStyle& style) {
+    HIGHCONTRASTW contrast{};
+    contrast.cbSize = sizeof(contrast);
+    if (!SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(contrast), &contrast, 0))
+        return;
+    const bool enabled = (contrast.dwFlags & HCF_HIGHCONTRASTON) != 0;
+    if (enabled == style.high_contrast)
+        return;
+    style.high_contrast = enabled;
+    const auto edit = GetDlgItem(dialog, IDC_SOURCE);
+    const auto flags = GetWindowLongW(edit, GWL_STYLE);
+    SetWindowLongW(edit, GWL_STYLE, enabled ? flags | WS_BORDER : flags & ~WS_BORDER);
+    SetWindowPos(edit, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    RedrawWindow(dialog, nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
+}
+
+BOOL CALLBACK set_body_font(HWND control, LPARAM font) {
+    SendMessageW(control, WM_SETFONT, static_cast<WPARAM>(font), FALSE);
+    return TRUE;
+}
+
+void set_fonts(HWND dialog, DialogStyle& style) {
+    const auto font = reinterpret_cast<HFONT>(SendMessageW(dialog, WM_GETFONT, 0, 0));
+    LOGFONTW metrics{};
+    if (!font || !GetObjectW(font, sizeof(metrics), &metrics))
+        return;
+    const auto height = metrics.lfHeight;
+    metrics.lfHeight = MulDiv(height, 5, 4);
+    style.body_font = CreateFontIndirectW(&metrics);
+    if (style.body_font)
+        EnumChildWindows(dialog, set_body_font, reinterpret_cast<LPARAM>(style.body_font));
+    metrics.lfHeight = MulDiv(height, 7, 3);
+    metrics.lfWeight = FW_BOLD;
+    style.heading_font = CreateFontIndirectW(&metrics);
+    if (style.heading_font)
+        SendDlgItemMessageW(dialog, IDC_HEADING, WM_SETFONT, reinterpret_cast<WPARAM>(style.heading_font), FALSE);
+}
+
+RECT pixels(HWND dialog, RECT units) {
+    MapDialogRect(dialog, &units);
+    return units;
+}
+
+HBRUSH brush(HDC dc, COLORREF color) {
+    SetDCBrushColor(dc, color);
+    return static_cast<HBRUSH>(GetStockObject(DC_BRUSH));
+}
+
+void fill(HDC dc, const RECT& area, COLORREF color) {
+    FillRect(dc, &area, brush(dc, color));
+}
+
+void draw_background(HWND dialog, HDC dc) {
+    RECT client{};
+    GetClientRect(dialog, &client);
+    fill(dc, client, kCanvas);
+    fill(dc, pixels(dialog, {12, 34, 444, 35}), kRule);
+    fill(dc, pixels(dialog, {108, 43, 109, 166}), kPanel);
+    fill(dc, pixels(dialog, {118, 103, 444, 120}), kPanel);
+    fill(dc, pixels(dialog, {118, 123, 444, 140}), kPanel);
+    fill(dc, pixels(dialog, {12, 174, 444, 175}), kRule);
+
+    auto field = pixels(dialog, kSourceFrame);
+    const bool focused = GetFocus() == GetDlgItem(dialog, IDC_SOURCE);
+    fill(dc, field, focused ? kGold : kRule);
+    InflateRect(&field, -1, -1);
+    fill(dc, field, kPanel);
+}
+
+void draw_button(HWND dialog, const NMCUSTOMDRAW& item) {
+    const auto id = static_cast<int>(item.hdr.idFrom);
+    const bool language = id == IDC_TRADITIONAL || id == IDC_SIMPLIFIED;
+    const bool active = language && IsDlgButtonChecked(dialog, id) == BST_CHECKED;
+    const bool focused = GetFocus() == item.hdr.hwndFrom;
+    const bool pressed = (item.uItemState & CDIS_SELECTED) != 0;
+    const bool hot = (item.uItemState & CDIS_HOT) != 0;
+    auto background = language ? kCanvas : kPanel;
+    if (active || focused || pressed || hot)
+        background = kHighlight;
+    if (id == IDC_LAUNCH)
+        background = pressed ? RGB(106, 180, 150) : hot ? RGB(151, 214, 189) : kMint;
+    fill(item.hdc, item.rc, background);
+
+    const auto marker = pixels(dialog, {0, 0, 2, 1});
+    if (language && (active || focused)) {
+        auto mark = item.rc;
+        mark.right = mark.left + marker.right;
+        fill(item.hdc, mark, focused ? kGold : kMint);
+    } else if (focused) {
+        auto mark = item.rc;
+        mark.top = mark.bottom - marker.bottom;
+        fill(item.hdc, mark, kGold);
+    }
+
+    wchar_t label[64]{};
+    GetWindowTextW(item.hdr.hwndFrom, label, ARRAYSIZE(label));
+    const auto padding = pixels(dialog, {0, 0, 8, 0}).right;
+    auto area = item.rc;
+    area.left += padding;
+    area.right -= padding;
+    SetBkMode(item.hdc, TRANSPARENT);
+    SetTextColor(item.hdc, id == IDC_LAUNCH ? kCanvas : language && !active && !focused ? kMuted : kInk);
+    const auto font = reinterpret_cast<HFONT>(SendMessageW(item.hdr.hwndFrom, WM_GETFONT, 0, 0));
+    const auto previous = font ? SelectObject(item.hdc, font) : nullptr;
+    DrawTextW(item.hdc, label, -1, &area, DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX |
+                                          (id == IDC_BROWSE ? DT_CENTER : DT_LEFT));
+    if (previous)
+        SelectObject(item.hdc, previous);
+}
+
+INT_PTR control_colors(HDC dc, int id, bool success) {
+    auto foreground = kInk;
+    auto background = kCanvas;
+    switch (id) {
+    case IDC_LANGUAGE_LABEL:
+    case IDC_SOURCE_LABEL:
+    case IDC_MODE_LABEL:
+        foreground = kGold;
+        break;
+    case IDC_VERSION:
+        foreground = kMuted;
+        break;
+    case IDC_STATUS:
+        foreground = success ? kMint : kMuted;
+        break;
+    case IDC_MEMORY_DETAIL:
+    case IDC_DISK_DETAIL:
+        foreground = kMuted;
+        [[fallthrough]];
+    case IDC_SOURCE:
+    case IDC_MEMORY_LABEL:
+    case IDC_DISK_LABEL:
+        background = kPanel;
+        break;
+    }
+    SetBkColor(dc, background);
+    SetTextColor(dc, foreground);
+    return reinterpret_cast<INT_PTR>(brush(dc, background));
+}
+
+void set_status(HWND dialog, const wchar_t* text, bool success = false) {
+    auto* style = reinterpret_cast<DialogStyle*>(GetWindowLongPtrW(dialog, DWLP_USER));
+    style->success = success;
+    SetDlgItemTextW(dialog, IDC_STATUS, text);
+}
+
+bool simplified_selected(HWND dialog) {
+    return IsDlgButtonChecked(dialog, IDC_SIMPLIFIED) == BST_CHECKED;
+}
+
+const wchar_t* output_extension(bool simplified) {
+    return simplified ? L".zh-CN.exe" : L".zh.exe";
+}
+
+void update_output_detail(HWND dialog) {
+    const auto detail = L"保存到游戏目录（" + std::wstring(output_extension(simplified_selected(dialog))) + L"）";
+    SetDlgItemTextW(dialog, IDC_DISK_DETAIL, detail.c_str());
+}
+
 void browse(HWND dialog) {
     std::array<wchar_t, 32768> filename{};
     OPENFILENAMEW options{};
@@ -310,25 +488,29 @@ void apply(HWND dialog, bool launch) {
     auto original = read_file(file.get(), kSourceSize);
     if (sha256(original) != kSourceHash)
         throw PatchError{unsupported};
-    const bool simplified = IsDlgButtonChecked(dialog, IDC_SIMPLIFIED) == BST_CHECKED;
+    const bool simplified = simplified_selected(dialog);
     const auto& patch = simplified ? zh_cn::kPatch : zh_tw::kPatch;
     const auto payload = patch_bytes(simplified ? IDR_PAYLOAD_CN : IDR_PAYLOAD, patch);
     if (launch) {
         launch_chinese(source, original, payload, patch);
-        SetDlgItemTextW(dialog, IDC_STATUS, L"中文版已启动。本次启动使用内存补丁。");
+        set_status(dialog, L"中文版已启动。本次启动使用内存补丁。", true);
     } else {
-        const auto target = write_chinese_exe(source, std::move(original), payload, patch,
-                                              simplified ? L".zh-CN.exe" : L".zh.exe");
-        const auto status = L"同目录的 " + target.filename().wstring() + L" 已就绪。";
-        SetDlgItemTextW(dialog, IDC_STATUS, status.c_str());
+        const auto target = write_chinese_exe(source, std::move(original), payload, patch, output_extension(simplified));
+        const auto status = L"中文版 EXE 已就绪。 " + target.filename().wstring();
+        set_status(dialog, status.c_str(), true);
     }
 }
 
-INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM) {
+INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM data) {
     try {
         if (message == WM_INITDIALOG) {
+            auto& style = *reinterpret_cast<DialogStyle*>(data);
+            SetWindowLongPtrW(dialog, DWLP_USER, data);
+            set_fonts(dialog, style);
+            update_contrast(dialog, style);
             CheckRadioButton(dialog, IDC_TRADITIONAL, IDC_SIMPLIFIED, IDC_TRADITIONAL);
-            SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
+            update_output_detail(dialog);
+            set_status(dialog, kVersionHint);
             std::array<wchar_t, 32768> path{};
             const auto length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
             if (length > 0 && length < path.size()) {
@@ -339,25 +521,58 @@ INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM) {
             }
             return TRUE;
         }
+        auto* style = reinterpret_cast<DialogStyle*>(GetWindowLongPtrW(dialog, DWLP_USER));
+        if (style && (message == WM_SETTINGCHANGE || message == WM_SYSCOLORCHANGE))
+            update_contrast(dialog, *style);
+        if (style && !style->high_contrast) {
+            switch (message) {
+            case WM_ERASEBKGND:
+                draw_background(dialog, reinterpret_cast<HDC>(param));
+                return TRUE;
+            case WM_CTLCOLOREDIT:
+            case WM_CTLCOLORSTATIC:
+                return control_colors(reinterpret_cast<HDC>(param), GetDlgCtrlID(reinterpret_cast<HWND>(data)),
+                                      style->success);
+            case WM_NOTIFY: {
+                const auto* header = reinterpret_cast<const NMHDR*>(data);
+                if (header->code == NM_CUSTOMDRAW) {
+                    const auto& item = *reinterpret_cast<const NMCUSTOMDRAW*>(data);
+                    if (item.dwDrawStage == CDDS_PREPAINT) {
+                        draw_button(dialog, item);
+                        SetWindowLongPtrW(dialog, DWLP_MSGRESULT, CDRF_SKIPDEFAULT);
+                        return TRUE;
+                    }
+                }
+                break;
+            }
+            }
+        }
         if (message == WM_COMMAND) {
             const auto notification = HIWORD(param);
-            if (LOWORD(param) == IDC_SOURCE && notification == EN_CHANGE) {
-                SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
-                return TRUE;
+            if (LOWORD(param) == IDC_SOURCE && style) {
+                if (notification == EN_CHANGE) {
+                    set_status(dialog, kVersionHint);
+                    return TRUE;
+                }
+                if (!style->high_contrast && (notification == EN_SETFOCUS || notification == EN_KILLFOCUS)) {
+                    const auto field = pixels(dialog, kSourceFrame);
+                    InvalidateRect(dialog, &field, TRUE);
+                }
             }
             if (notification != BN_CLICKED)
                 return FALSE;
             switch (LOWORD(param)) {
             case IDC_TRADITIONAL:
             case IDC_SIMPLIFIED:
-                SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
+                update_output_detail(dialog);
+                set_status(dialog, kVersionHint);
                 return TRUE;
             case IDC_BROWSE:
                 browse(dialog);
                 return TRUE;
             case IDC_WRITE:
             case IDC_LAUNCH:
-                SetDlgItemTextW(dialog, IDC_STATUS, kVersionHint);
+                set_status(dialog, kVersionHint);
                 apply(dialog, LOWORD(param) == IDC_LAUNCH);
                 return TRUE;
             case IDCANCEL:
@@ -378,7 +593,14 @@ INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM) {
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     SetProcessDPIAware();
-    if (DialogBoxParamW(instance, MAKEINTRESOURCEW(IDD_PATCHER), nullptr, dialog_proc, 0) == -1) {
+    DialogStyle style;
+    const auto result = DialogBoxParamW(instance, MAKEINTRESOURCEW(IDD_PATCHER), nullptr, dialog_proc,
+                                        reinterpret_cast<LPARAM>(&style));
+    if (style.heading_font)
+        DeleteObject(style.heading_font);
+    if (style.body_font)
+        DeleteObject(style.body_font);
+    if (result == -1) {
         MessageBoxW(nullptr, L"无法打开补丁工具窗口。", kTitle, MB_OK | MB_ICONERROR);
         return 1;
     }

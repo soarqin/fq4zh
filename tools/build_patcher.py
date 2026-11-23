@@ -144,6 +144,7 @@ def build_patcher(windows, dos, output, work, *, payload_dir=None):
     (work / 'patcher_version.h').write_text(
         f'#define FQ4_VERSION "{version}"\n'
         f'#define FQ4_VERSION_NUMERIC {numbers}\n'
+        f'#define FQ4_HEADER "First Queen IV  /  v{version}"\n'
         f'#define FQ4_CAPTION "First Queen IV 中文补丁 v{version}"\n',
         encoding='utf-8')
 
@@ -155,7 +156,7 @@ def build_patcher(windows, dos, output, work, *, payload_dir=None):
                     '/I' + str(work), '/Fo' + str(work / 'patcher.obj'), '/Fe' + str(candidate),
                     str(PATCHER / 'patcher.cpp'), str(resources),
                     '/link', '/SUBSYSTEM:WINDOWS', '/MACHINE:X86', '/MANIFEST:EMBED',
-                    'bcrypt.lib', 'comdlg32.lib', 'user32.lib'], cwd=work, check=True)
+                    'bcrypt.lib', 'comdlg32.lib', 'gdi32.lib', 'user32.lib'], cwd=work, check=True)
     if output != candidate:
         output.parent.mkdir(parents=True, exist_ok=True)
         stage = output.with_name(output.name + '.new')
