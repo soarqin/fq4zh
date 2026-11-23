@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-23
+
+### Changed
+
+- 重做单文件补丁工具界面，新增深色布局和简繁语言侧栏，并显示所选语言的输出文件后缀。
+
 ### Fixed
 
 - 修复在大地图点击据点后，弹窗中的部队名缺字或乱码的问题。
@@ -30,5 +36,6 @@
 - 修复地图部队名、状态栏等位置的中文显示问题，并校正繁体文字的垂直位置。
 - 为音效特效初始化提供兼容性回退。
 
-[Unreleased]: https://github.com/soarqin/fq4zh/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/soarqin/fq4zh/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.1
 [1.0.0]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.0
