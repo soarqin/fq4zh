@@ -7,13 +7,16 @@ from pathlib import Path
 
 import pefile
 
-from catalog import ROOT, WORK, dos_data, dos_ui, original_exe, save_tsv, story_rows, table_rows, win_ui
-from locale_text import localize_story, localize_table
+from catalog import (
+    DIAGNOSTICS_START, ROOT, WORK, dos_data, dos_ui, original_exe, save_tsv, story_rows, table_rows, win_ui,
+)
+from locale_text import FQFBANK_TEXT, localize_story, localize_table
 from reverb import reverb_data
 from runtime import BUFFER_SIZE, IMAGE_BASE, patch_runtime, u32
 
 
 FULLWIDTH_SPACE = b'\x81\x40'
+KANA = re.compile(r'[\u3041-\u3096\u30a1-\u30fa\uff66-\uff9f]')
 
 
 class Glyphs:
@@ -65,14 +68,24 @@ def fit(raw, width, *, fullwidth):
     return raw + b' ' * remaining
 
 
-def patch_game_ui(pe, source, glyphs, rules):
+def patch_game_ui(pe, source, glyphs, rules, nations, add):
     find = re.compile('|'.join(re.escape(s) for s in sorted(rules, key=len, reverse=True)))
     rows = []
+    legend = {}
     for row in win_ui(source):
-        off, width, ja = (row[key] for key in ('win', 'bytes', 'ja'))
-        if off >= 0xB99B8:
+        off, ja = row['win'], row['ja']
+        if off >= DIAGNOSTICS_START:
             continue
-        pos = off
+        if 0x98220 <= off <= 0x98268:
+            index = int(ja[2])
+            target = ja[:4] + nations[index].ljust(3, '　')
+            legend[index] = add(glyphs.cells(target) + b'\0')
+            rows.append(dict(**row, target=target, origin='nation-table'))
+            continue
+        translated = find.sub(lambda match: rules[match[0]], ja)
+        if KANA.search(translated):
+            raise ValueError(f'Untranslated UI at 0x{off:x}: {translated}')
+        matched = False
         for match in find.finditer(ja):
             start = off + len(ja[:match.start()].encode('cp932'))
             old = match[0].encode('cp932')
@@ -82,10 +95,10 @@ def patch_game_ui(pe, source, glyphs, rules):
             except ValueError as error:
                 raise ValueError((hex(off), match[0], target, str(error))) from error
             pe.patch(IMAGE_BASE + start, old, new)
-            pos = start + len(old)
-        if pos != off:
-            rows.append(dict(**row, target=find.sub(lambda m: rules[m[0]], ja), origin='ui-terms'))
-    return rows
+            matched = True
+        if matched:
+            rows.append(dict(**row, target=translated, origin='ui-terms'))
+    return rows, add(b''.join(u32(legend[index]) for index in range(7)), 4)
 
 
 def patch_diagnostics(pe, source, glyphs, add, convert):
@@ -114,6 +127,19 @@ def patch_diagnostics(pe, source, glyphs, add, convert):
                 pe.patch(IMAGE_BASE + 0x1000 + ref.start() + 1, original, u32(addr))
         rows.append(dict(win=offset, bytes=len(raw), ja=japanese, target=target, origin='windows'))
     return rows
+
+
+def event_text_records(bank, glyphs, add, convert):
+    records = []
+    for offset, (japanese, chinese) in FQFBANK_TEXT.items():
+        original = japanese.encode('cp932')
+        expected = b'\xb0' + original + b'\0'
+        start = offset - 1
+        if bank[start:start + len(expected)] != expected:
+            raise ValueError(f'Unexpected event text at FQFBANK offset 0x{offset:x}')
+        replacement = fit(glyphs.cells(convert(chinese)), len(original), fullwidth=True)
+        records.append((start, add(expected), add(b'\xb0' + replacement + b'\0'), len(expected)))
+    return records
 
 
 def align(value, alignment):
@@ -194,6 +220,8 @@ def localize_dialog(raw, convert, font_name):
             seen.add(original)
             if original in DIALOG_TEXT:
                 original = convert(DIALOG_TEXT[original])
+            if KANA.search(original):
+                raise ValueError(f'Untranslated startup dialog text: {original}')
         if font:
             original = font_name
         result.extend((original + '\0').encode('utf-16le'))
@@ -305,14 +333,17 @@ def build(windows, dos, out, work, *, locale='zh-TW', memory_compatible=False):
         struct.pack_into('<II', pe.data, dialog.get_file_offset(), dialog_address - IMAGE_BASE, len(dialog_data))
 
     rules = dict(line.split('\t') for line in (ROOT / 'tools' / 'ui_terms.tsv').read_text(encoding='utf-8').splitlines())
-    ui = patch_game_ui(pe, source, glyphs, {jp: convert(zh) for jp, zh in rules.items()})
+    nations = [row['target'] for row in terms if row['kind'] == 'nation']
+    ui, legend = patch_game_ui(pe, source, glyphs, {jp: convert(zh) for jp, zh in rules.items()}, nations, add)
     ui.extend(patch_diagnostics(pe, source, glyphs, add, convert))
+    bank = (windows / 'DATA' / 'FQFBANK').read_bytes()
+    events = event_text_records(bank, glyphs, add, convert)
 
     decode = add(struct.pack('<65536H', *glyphs.decode), 4)
     encode = add(glyphs.encoder(), 4)
     reverb = reverb_data(add)
     assert pe.section(b'.fq4text', payload, 0x40000040) == data_base
-    patch_runtime(pe, source, decode, encode, ptrs, reverb)
+    patch_runtime(pe, source, decode, encode, ptrs, reverb, legend=legend, events=events)
 
     work.mkdir(parents=True, exist_ok=True)
     save_tsv(work / 'dialogue.tsv', records)

@@ -52,7 +52,7 @@ class Code:
         return self.data
 
 
-def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb):
+def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb, *, legend, events):
     base = IMAGE_BASE + pe.next_rva
     code = Code(base)
 
@@ -139,8 +139,39 @@ def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb)
 
     name_readers, indexed_name = emit_name_cells(code)
 
+    # The seven legend rows have only five bytes for a name. Pass the full
+    # translated row to the append routine, indexed by the original loop's ESI.
+    legend_row = code.label('legend_row')
+    code.emit('8b 04 b5', legend)
+    code.emit('89 44 24 08')
+    code.to_address('e9', 0x40A8B0)
+
+    # Replace matching inline strings in the loaded map bank. Fixed widths
+    # preserve the bytecode's offsets and keep the original file intact.
+    bank_loaded = code.label('bank_loaded')
+    code.emit('85 c0')
+    code.relative('74', 'bank_done')
+    code.emit('56 57')
+    for offset, expected, replacement, size in events:
+        address = 0x58D31C + offset
+        code.emit('bf', address)
+        code.emit('be', expected)
+        code.emit('b9', size)
+        code.emit('f3 a6')  # repe cmpsb
+        code.relative('75', f'bank_next_{offset:x}')
+        code.emit('bf', address)
+        code.emit('be', replacement)
+        code.emit('b9', size)
+        code.emit('f3 a4')  # rep movsb
+        code.label(f'bank_next_{offset:x}')
+    code.emit('5f 5e')
+    code.label('bank_done')
+    code.emit('85 c0 c2 0c 00')  # Keep the load result and flags, then discard the read arguments.
+
     assert pe.section(b'.fq4uni', code.finish(), 0x60000020) == base
     patch_name_cells(pe, name_readers, indexed_name)
+    pe.patch(0x4037E4, call(0x4037E4, 0x40A8B0), call(0x4037E4, legend_row))
+    pe.patch(0x43CA84, bytes.fromhex('83 c4 0c 85 c0'), call(0x43CA84, bank_loaded))
     pe.patch(0x443657, bytes.fromhex('85c05f7415'), b'\xe9' + struct.pack('<i', reverb_fallback - 0x44365C))
     # The WAV resource IDs start at 4000. Use their two-digit offsets so
     # DirectMusic's ANSI-to-Unicode conversion preserves unique cache keys.

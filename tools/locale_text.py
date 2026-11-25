@@ -20,6 +20,18 @@ STORY_CHANGES = {
 
 JP_ESCAPE = re.compile(r'\\P[0-9A-F]R?')
 
+# Inline event text in the Windows map bank, outside the indexed story table.
+FQFBANK_TEXT = {
+    0x9A5B: (
+        '　' * 8 + '道士レクス' + '　' * 15 + '勇者グラン' + '　' * 7,
+        '　' * 8 + '雷克斯　魔法師兵團'.ljust(20, '　') + '葛南　騎士兵團',
+    ),
+    0xCB5B: (
+        'なあに、今はゼネルに協力しているが、あいつの力を利用するだけしたら寝首をかいてやるさ」',
+        '哼，我現在是和塞內爾合作。等他的力量派不上用場了，我就趁他熟睡時下手！」',
+    ),
+}
+
 
 def localize_story(row, convert=str):
     idx, jp, zh = (row[key] for key in ('id', 'ja', 'zh'))

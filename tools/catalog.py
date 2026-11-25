@@ -17,6 +17,7 @@ DOS_SHA256 = {
 }
 STORY = 0x986D8
 SLOTS = 800
+DIAGNOSTICS_START = 0xB9998
 
 # File offsets in Win v1.10 and the DOS MAIN.EXE distributed with this copy.
 TABLES = {
@@ -99,8 +100,10 @@ def dos_ui(data):
 
 
 def win_ui(data):
-    for start, end in [(0x98000, STORY), (0xA83A4, 0xACE30),
-                       (0xB146C, 0xB14A0), (0xB99B8, 0xBAA25)]:
+    # The riding menu and the first diagnostic follow binary data without a
+    # NUL separator. Start at the text so the preceding bytes are not decoded.
+    for start, end in [(0x98044, STORY), (0xA83BC, 0xABF54), (0xABF6C, 0xACE30),
+                       (0xB13E8, 0xB14A0), (DIAGNOSTICS_START, 0xBAA25)]:
         for match in re.finditer(rb'[^\0]+', data[start:end]):
             raw = match[0]
             address = start + match.start()
@@ -111,7 +114,7 @@ def win_ui(data):
                 value = raw.decode('cp932')
             except UnicodeDecodeError:
                 continue
-            if (re.search(r'[\u3040-\u30ff\u4e00-\u9fff]', value)
+            if ((re.search(r'[\u3040-\u30ff\u4e00-\u9fff]', value) or re.match(r'@F[0-6] ', value))
                 and all(c.isprintable() or c in '\x01\x02\t\r\n\u3000' for c in value)
                 and not re.search(r'[\ue000-\uf8ff]', value)):
                 yield dict(win=address, bytes=len(raw), ja=value)
