@@ -11,11 +11,13 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "resource.h"
+#include "patcher_version.h"
 
 #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' " \
     "version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -23,8 +25,14 @@
 namespace {
 namespace fs = std::filesystem;
 using Bytes = std::vector<std::uint8_t>;
-constexpr auto kTitle = L"First Queen IV 中文补丁";
-constexpr auto kVersionHint = L"支持 Windows 日文版 v1.10 的原始 EXE。";
+
+constexpr const wchar_t* tr(bool simplified, const wchar_t* zh_tw, const wchar_t* zh_cn) {
+    return simplified ? zh_cn : zh_tw;
+}
+
+constexpr const wchar_t* title(bool simplified) {
+    return tr(simplified, L"First Queen IV 中文補丁", L"First Queen IV 中文补丁");
+}
 
 struct PatchRecord {
     std::uint32_t file_offset, rva, size;
@@ -52,14 +60,12 @@ using zh_tw::kSourceHash;
 using zh_tw::kSourceSize;
 
 struct PatchError {
-    std::wstring message;
+    std::wstring traditional, simplified;
+    std::optional<DWORD> code = std::nullopt;
 };
 
-[[noreturn]] void windows_error(const wchar_t* step, DWORD code = GetLastError()) {
-    wchar_t details[512]{};
-    FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                   nullptr, code, 0, details, ARRAYSIZE(details), nullptr);
-    throw PatchError{std::wstring(step) + L"（Windows 错误 " + std::to_wstring(code) + L"）\n" + details};
+[[noreturn]] void windows_error(const wchar_t* traditional, const wchar_t* simplified, DWORD code = GetLastError()) {
+    throw PatchError{traditional, simplified, code};
 }
 
 class Handle {
@@ -85,18 +91,18 @@ private:
 const std::uint8_t* patch_bytes(WORD resource_id, const PatchData& patch) {
     const auto resource = FindResourceW(nullptr, MAKEINTRESOURCEW(resource_id), RT_RCDATA);
     if (!resource || SizeofResource(nullptr, resource) != patch.payload_size)
-        throw PatchError{L"内置补丁资源不完整。"};
+        throw PatchError{L"內建補丁資源不完整。", L"内置补丁资源不完整。"};
     const auto loaded = LoadResource(nullptr, resource);
     const auto data = loaded ? LockResource(loaded) : nullptr;
     if (!data)
-        throw PatchError{L"无法读取内置补丁。"};
+        throw PatchError{L"無法讀取內建補丁。", L"无法读取内置补丁。"};
     return static_cast<const std::uint8_t*>(data);
 }
 
 bool file_size_is(HANDLE file, std::uint32_t expected) {
     LARGE_INTEGER size{};
     if (!GetFileSizeEx(file, &size))
-        windows_error(L"无法读取 EXE 文件大小");
+        windows_error(L"無法讀取 EXE 檔案大小", L"无法读取 EXE 文件大小");
     return size.QuadPart == expected;
 }
 
@@ -104,23 +110,23 @@ Bytes read_file(HANDLE file, DWORD size) {
     Bytes data(size);
     DWORD count = 0;
     if (!ReadFile(file, data.data(), size, &count, nullptr))
-        windows_error(L"无法读取 EXE");
+        windows_error(L"無法讀取 EXE", L"无法读取 EXE");
     if (count != size)
-        throw PatchError{L"EXE 文件读取不完整。"};
+        throw PatchError{L"EXE 檔案讀取不完整。", L"EXE 文件读取不完整。"};
     return data;
 }
 
 std::array<std::uint8_t, 32> sha256(const Bytes& data) {
     BCRYPT_ALG_HANDLE algorithm = nullptr;
     if (!BCRYPT_SUCCESS(BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0)))
-        throw PatchError{L"无法初始化 SHA-256 校验。"};
+        throw PatchError{L"無法初始化 SHA-256 驗證。", L"无法初始化 SHA-256 校验。"};
     std::array<std::uint8_t, 32> digest{};
     const auto status = BCryptHash(algorithm, nullptr, 0, const_cast<PUCHAR>(data.data()),
                                    static_cast<ULONG>(data.size()), digest.data(),
                                    static_cast<ULONG>(digest.size()));
     BCryptCloseAlgorithmProvider(algorithm, 0);
     if (!BCRYPT_SUCCESS(status))
-        throw PatchError{L"无法完成 SHA-256 校验。"};
+        throw PatchError{L"無法完成 SHA-256 驗證。", L"无法完成 SHA-256 校验。"};
     return digest;
 }
 
@@ -132,7 +138,7 @@ fs::path write_chinese_exe(fs::path source, Bytes image, const std::uint8_t* pay
         payload += record.size;
     }
     if (sha256(image) != patch.target_hash)
-        throw PatchError{L"中文版 EXE 校验失败。"};
+        throw PatchError{L"中文版 EXE 驗證失敗。", L"中文版 EXE 校验失败。"};
 
     const auto target = source.replace_extension(extension);
     {
@@ -142,10 +148,12 @@ fs::path write_chinese_exe(fs::path source, Bytes image, const std::uint8_t* pay
             if (file_size_is(existing.get(), patch.target_size) &&
                 sha256(read_file(existing.get(), patch.target_size)) == patch.target_hash)
                 return target;
-            throw PatchError{L"同目录已有 " + target.filename().wstring() + L"。请改名后再生成。"};
+            const auto name = target.filename().wstring();
+            throw PatchError{L"同目錄已有 " + name + L"。請重新命名後再產生。",
+                             L"同目录已有 " + name + L"。请改名后再生成。"};
         }
         if (GetLastError() != ERROR_FILE_NOT_FOUND)
-            windows_error(L"无法检查中文版 EXE 的输出路径");
+            windows_error(L"無法檢查中文版 EXE 的輸出路徑", L"无法检查中文版 EXE 的输出路径");
     }
 
     // Publish a complete file in a single rename, without replacing a file created concurrently.
@@ -155,18 +163,18 @@ fs::path write_chinese_exe(fs::path source, Bytes image, const std::uint8_t* pay
     Handle output(CreateFileW(stage.c_str(), GENERIC_WRITE, 0, nullptr,
                              CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr));
     if (!output)
-        windows_error(L"无法在游戏目录创建中文版 EXE 的临时文件");
+        windows_error(L"無法在遊戲目錄建立中文版 EXE 的暫存檔", L"无法在游戏目录创建中文版 EXE 的临时文件");
     try {
         DWORD count = 0;
         if (!WriteFile(output.get(), image.data(), patch.target_size, &count, nullptr))
-            windows_error(L"无法写入中文版 EXE");
+            windows_error(L"無法寫入中文版 EXE", L"无法写入中文版 EXE");
         if (count != patch.target_size)
-            throw PatchError{L"中文版 EXE 写入不完整。"};
+            throw PatchError{L"中文版 EXE 寫入不完整。", L"中文版 EXE 写入不完整。"};
         if (!FlushFileBuffers(output.get()))
-            windows_error(L"无法完成中文版 EXE 写入");
+            windows_error(L"無法完成中文版 EXE 寫入", L"无法完成中文版 EXE 写入");
         output.close();
         if (!MoveFileExW(stage.c_str(), target.c_str(), MOVEFILE_WRITE_THROUGH))
-            windows_error(L"无法保存中文版 EXE");
+            windows_error(L"無法儲存中文版 EXE", L"无法保存中文版 EXE");
     } catch (...) {
         output.close();
         DeleteFileW(stage.c_str());
@@ -196,9 +204,10 @@ void check_memory(HANDLE process, std::uint32_t rva, const std::uint8_t* expecte
     Bytes actual(size);
     SIZE_T count = 0;
     if (!ReadProcessMemory(process, address(rva), actual.data(), size, &count))
-        windows_error(L"无法读取游戏的初始映像");
+        windows_error(L"無法讀取遊戲的初始映像", L"无法读取游戏的初始映像");
     if (count != size || std::memcmp(actual.data(), expected, size) != 0)
-        throw PatchError{L"启动后的游戏映像与已校验的日文 EXE 不一致。"};
+        throw PatchError{L"啟動後的遊戲映像與已驗證的日文版 EXE 不一致。",
+                         L"启动后的游戏映像与已校验的日文 EXE 不一致。"};
 }
 
 void write_memory(HANDLE process, const PatchRecord& record, const std::uint8_t* data,
@@ -209,15 +218,15 @@ void write_memory(HANDLE process, const PatchRecord& record, const std::uint8_t*
     const bool original_section = record.rva < extension_rva;
     DWORD previous = 0;
     if (original_section && !VirtualProtectEx(process, target, record.size, PAGE_READWRITE, &previous))
-        windows_error(L"无法写入游戏的初始映像");
+        windows_error(L"無法寫入遊戲的初始映像", L"无法写入游戏的初始映像");
     SIZE_T count = 0;
     if (!WriteProcessMemory(process, target, data, record.size, &count))
-        windows_error(L"无法写入内存补丁");
+        windows_error(L"無法寫入記憶體補丁", L"无法写入内存补丁");
     if (count != record.size)
-        throw PatchError{L"内存补丁写入不完整。"};
+        throw PatchError{L"記憶體補丁寫入不完整。", L"内存补丁写入不完整。"};
     DWORD ignored = 0;
     if (original_section && !VirtualProtectEx(process, target, record.size, previous, &ignored))
-        windows_error(L"无法恢复游戏映像的内存权限");
+        windows_error(L"無法還原遊戲映像的記憶體權限", L"无法恢复游戏映像的内存权限");
 }
 
 void launch_chinese(const fs::path& source, const Bytes& original, const std::uint8_t* payload,
@@ -229,13 +238,13 @@ void launch_chinese(const fs::path& source, const Bytes& original, const std::ui
     auto command = L"\"" + source.wstring() + L"\"";
     if (!CreateProcessW(source.c_str(), command.data(), nullptr, nullptr, FALSE, CREATE_SUSPENDED,
                         nullptr, directory.c_str(), &startup, &game.info))
-        windows_error(L"无法启动日文版游戏 EXE");
+        windows_error(L"無法啟動日文版遊戲 EXE", L"无法启动日文版游戏 EXE");
 
     const auto process = game.info.hProcess;
     MEMORY_BASIC_INFORMATION region{};
     if (!VirtualQueryEx(process, address(0), &region, sizeof(region)) ||
         region.Type != MEM_IMAGE || region.AllocationBase != address(0))
-        throw PatchError{L"游戏映像未加载到支持的地址。"};
+        throw PatchError{L"遊戲映像未載入至支援的位址。", L"游戏映像未加载到支持的地址。"};
     check_memory(process, 0, original.data(), kHeadersSize);
     // The imported MessageBoxW name must be patched before the loader binds the IAT.
     check_memory(process, kMessageBoxThunkRva, original.data() + kMessageBoxThunkOffset, sizeof(DWORD));
@@ -243,9 +252,9 @@ void launch_chinese(const fs::path& source, const Bytes& original, const std::ui
     const auto extension = VirtualAllocEx(process, address(patch.extension_rva), patch.extension_size,
                                          MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     if (!extension)
-        windows_error(L"无法为中文文本和绘字代码分配内存");
+        windows_error(L"無法為中文文字和繪字程式碼配置記憶體", L"无法为中文文本和绘字代码分配内存");
     if (extension != address(patch.extension_rva))
-        throw PatchError{L"汉化数据未加载到游戏使用的地址。"};
+        throw PatchError{L"中文化資料未載入至遊戲使用的位址。", L"汉化数据未加载到游戏使用的地址。"};
 
     for (const auto& record : patch) {
         if (record.rva != kDiskOnly) {
@@ -258,16 +267,16 @@ void launch_chinese(const fs::path& source, const Bytes& original, const std::ui
     DWORD ignored = 0;
     if (!VirtualProtectEx(process, extension, patch.extension_size, PAGE_READONLY, &ignored) ||
         !VirtualProtectEx(process, address(patch.code_rva), patch.code_size, PAGE_EXECUTE_READ, &ignored))
-        windows_error(L"无法设置汉化数据的内存权限");
+        windows_error(L"無法設定中文化資料的記憶體權限", L"无法设置汉化数据的内存权限");
     if (!FlushInstructionCache(process, nullptr, 0))
-        windows_error(L"无法刷新游戏的指令缓存");
+        windows_error(L"無法重新整理遊戲的指令快取", L"无法刷新游戏的指令缓存");
 
     AllowSetForegroundWindow(game.info.dwProcessId);
     const DWORD suspend_count = ResumeThread(game.info.hThread);
     if (suspend_count == static_cast<DWORD>(-1))
-        windows_error(L"无法恢复游戏进程");
+        windows_error(L"無法繼續執行遊戲程序", L"无法恢复游戏进程");
     if (suspend_count != 1)
-        throw PatchError{L"游戏主线程的状态异常。"};
+        throw PatchError{L"遊戲主執行緒的狀態異常。", L"游戏主线程的状态异常。"};
     game.started = true;
 }
 
@@ -443,31 +452,81 @@ const wchar_t* output_extension(bool simplified) {
     return simplified ? L".zh-CN.exe" : L".zh.exe";
 }
 
-void update_output_detail(HWND dialog) {
-    const auto detail = L"保存到游戏目录（" + std::wstring(output_extension(simplified_selected(dialog))) + L"）";
+void reset_status(HWND dialog) {
+    set_status(dialog, tr(simplified_selected(dialog), L"支援 Windows 日文版 v1.10 的原始 EXE。",
+                                                      L"支持 Windows 日文版 v1.10 的原始 EXE。"));
+}
+
+void update_language(HWND dialog) {
+    const bool simplified = simplified_selected(dialog);
+    SetWindowTextW(dialog, tr(simplified, L"First Queen IV 中文補丁 v" FQ4_VERSION,
+                                         L"First Queen IV 中文补丁 v" FQ4_VERSION));
+
+    static constexpr struct {
+        int id;
+        const wchar_t* traditional;
+        const wchar_t* simplified;
+    } labels[] = {
+        {IDC_HEADING, L"啟動設定", L"启动设置"},
+        {IDC_LANGUAGE_LABEL, L"遊戲語言", L"游戏语言"},
+        {IDC_SOURCE_LABEL, L"日文版遊戲 EXE", L"日文版游戏 EXE"},
+        {IDC_BROWSE, L"瀏覽…", L"浏览…"},
+        {IDC_MODE_LABEL, L"補丁方式", L"补丁方式"},
+        {IDC_MEMORY_LABEL, L"記憶體補丁", L"内存补丁"},
+        {IDC_MEMORY_DETAIL, L"僅在本次執行時生效", L"仅本次运行生效"},
+        {IDC_DISK_LABEL, L"產生檔案", L"生成文件"},
+        {IDC_LAUNCH, L"以記憶體補丁啟動", L"以内存补丁启动"},
+        {IDC_WRITE, L"產生中文版 EXE", L"生成中文版 EXE"},
+        {IDCANCEL, L"離開", L"退出"},
+    };
+    for (const auto& label : labels)
+        SetDlgItemTextW(dialog, label.id, tr(simplified, label.traditional, label.simplified));
+
+    const auto detail = tr(simplified, L"儲存至遊戲目錄（", L"保存到游戏目录（") +
+                        std::wstring(output_extension(simplified)) + L"）";
     SetDlgItemTextW(dialog, IDC_DISK_DETAIL, detail.c_str());
+    reset_status(dialog);
+}
+
+void show_error(HWND dialog, const PatchError& error) {
+    const bool simplified = simplified_selected(dialog);
+    auto message = simplified ? error.simplified : error.traditional;
+    if (error.code) {
+        const auto lang = MAKELANGID(LANG_CHINESE, simplified ? SUBLANG_CHINESE_SIMPLIFIED :
+                                                                SUBLANG_CHINESE_TRADITIONAL);
+        wchar_t details[512]{};
+        constexpr DWORD flags = FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+        DWORD length = FormatMessageW(flags, nullptr, *error.code, lang, details, ARRAYSIZE(details), nullptr);
+        if (!length)
+            length = FormatMessageW(flags, nullptr, *error.code, 0, details, ARRAYSIZE(details), nullptr);
+        message += tr(simplified, L"（Windows 錯誤 ", L"（Windows 错误 ") + std::to_wstring(*error.code) + L"）";
+        if (length)
+            message += L"\n" + std::wstring(details, length);
+    }
+    MessageBoxW(dialog, message.c_str(), title(simplified), MB_OK | MB_ICONERROR);
 }
 
 void browse(HWND dialog) {
+    const bool simplified = simplified_selected(dialog);
     std::array<wchar_t, 32768> filename{};
     OPENFILENAMEW options{};
     options.lStructSize = sizeof(options);
     options.hwndOwner = dialog;
-    options.lpstrFilter = L"游戏程序 (*.exe)\0*.exe\0";
+    options.lpstrFilter = tr(simplified, L"遊戲程式 (*.exe)\0*.exe\0", L"游戏程序 (*.exe)\0*.exe\0");
     options.lpstrFile = filename.data();
     options.nMaxFile = static_cast<DWORD>(filename.size());
-    options.lpstrTitle = L"选择日文版 First Queen IV";
+    options.lpstrTitle = tr(simplified, L"選擇日文版 First Queen IV", L"选择日文版 First Queen IV");
     options.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
     if (GetOpenFileNameW(&options))
         SetDlgItemTextW(dialog, IDC_SOURCE, filename.data());
     else if (CommDlgExtendedError())
-        throw PatchError{L"无法打开文件选择窗口。"};
+        throw PatchError{L"無法開啟檔案選擇視窗。", L"无法打开文件选择窗口。"};
 }
 
 fs::path selected_path(HWND dialog) {
     const int length = GetWindowTextLengthW(GetDlgItem(dialog, IDC_SOURCE));
     if (length == 0)
-        throw PatchError{L"请选择日文版游戏 EXE。"};
+        throw PatchError{L"請選擇日文版遊戲 EXE。", L"请选择日文版游戏 EXE。"};
     std::wstring path(static_cast<std::size_t>(length) + 1, L'\0');
     path.resize(GetDlgItemTextW(dialog, IDC_SOURCE, path.data(), length + 1));
     if (path.size() >= 2 && path.front() == L'"' && path.back() == L'"')
@@ -481,22 +540,25 @@ void apply(HWND dialog, bool launch) {
     const Handle file(CreateFileW(source.c_str(), GENERIC_READ, FILE_SHARE_READ,
                                   nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr));
     if (!file)
-        windows_error(L"无法打开日文版游戏 EXE");
-    const auto unsupported = L"请选择此次校验的 Windows 日文版 v1.10 原始 EXE。";
+        windows_error(L"無法開啟日文版遊戲 EXE", L"无法打开日文版游戏 EXE");
+    constexpr auto unsupported_tw = L"請選擇 Windows 日文版 v1.10 的原始 EXE。";
+    constexpr auto unsupported_cn = L"请选择 Windows 日文版 v1.10 的原始 EXE。";
     if (!file_size_is(file.get(), kSourceSize))
-        throw PatchError{unsupported};
+        throw PatchError{unsupported_tw, unsupported_cn};
     auto original = read_file(file.get(), kSourceSize);
     if (sha256(original) != kSourceHash)
-        throw PatchError{unsupported};
+        throw PatchError{unsupported_tw, unsupported_cn};
     const bool simplified = simplified_selected(dialog);
     const auto& patch = simplified ? zh_cn::kPatch : zh_tw::kPatch;
     const auto payload = patch_bytes(simplified ? IDR_PAYLOAD_CN : IDR_PAYLOAD, patch);
     if (launch) {
         launch_chinese(source, original, payload, patch);
-        set_status(dialog, L"中文版已启动。本次启动使用内存补丁。", true);
+        set_status(dialog, tr(simplified, L"中文版已啟動。本次啟動使用記憶體補丁。",
+                                          L"中文版已启动。本次启动使用内存补丁。"), true);
     } else {
         const auto target = write_chinese_exe(source, std::move(original), payload, patch, output_extension(simplified));
-        const auto status = L"中文版 EXE 已就绪。 " + target.filename().wstring();
+        const auto status = tr(simplified, L"中文版 EXE 已就緒。 ", L"中文版 EXE 已就绪。 ") +
+                            target.filename().wstring();
         set_status(dialog, status.c_str(), true);
     }
 }
@@ -509,8 +571,7 @@ INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM dat
             set_fonts(dialog, style);
             update_contrast(dialog, style);
             CheckRadioButton(dialog, IDC_TRADITIONAL, IDC_SIMPLIFIED, IDC_TRADITIONAL);
-            update_output_detail(dialog);
-            set_status(dialog, kVersionHint);
+            update_language(dialog);
             std::array<wchar_t, 32768> path{};
             const auto length = GetModuleFileNameW(nullptr, path.data(), static_cast<DWORD>(path.size()));
             if (length > 0 && length < path.size()) {
@@ -551,7 +612,7 @@ INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM dat
             const auto notification = HIWORD(param);
             if (LOWORD(param) == IDC_SOURCE && style) {
                 if (notification == EN_CHANGE) {
-                    set_status(dialog, kVersionHint);
+                    reset_status(dialog);
                     return TRUE;
                 }
                 if (!style->high_contrast && (notification == EN_SETFOCUS || notification == EN_KILLFOCUS)) {
@@ -564,15 +625,14 @@ INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM dat
             switch (LOWORD(param)) {
             case IDC_TRADITIONAL:
             case IDC_SIMPLIFIED:
-                update_output_detail(dialog);
-                set_status(dialog, kVersionHint);
+                update_language(dialog);
                 return TRUE;
             case IDC_BROWSE:
                 browse(dialog);
                 return TRUE;
             case IDC_WRITE:
             case IDC_LAUNCH:
-                set_status(dialog, kVersionHint);
+                reset_status(dialog);
                 apply(dialog, LOWORD(param) == IDC_LAUNCH);
                 return TRUE;
             case IDCANCEL:
@@ -581,10 +641,12 @@ INT_PTR CALLBACK dialog_proc(HWND dialog, UINT message, WPARAM param, LPARAM dat
             }
         }
     } catch (const PatchError& error) {
-        MessageBoxW(dialog, error.message.c_str(), kTitle, MB_OK | MB_ICONERROR);
+        show_error(dialog, error);
         return TRUE;
     } catch (const std::exception&) {
-        MessageBoxW(dialog, L"无法处理选中的游戏路径或文件。", kTitle, MB_OK | MB_ICONERROR);
+        const bool simplified = simplified_selected(dialog);
+        MessageBoxW(dialog, tr(simplified, L"無法處理所選的遊戲路徑或檔案。", L"无法处理选中的游戏路径或文件。"),
+                    title(simplified), MB_OK | MB_ICONERROR);
         return TRUE;
     }
     return FALSE;
@@ -601,7 +663,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int) {
     if (style.body_font)
         DeleteObject(style.body_font);
     if (result == -1) {
-        MessageBoxW(nullptr, L"无法打开补丁工具窗口。", kTitle, MB_OK | MB_ICONERROR);
+        MessageBoxW(nullptr, L"無法開啟補丁工具視窗。", title(false), MB_OK | MB_ICONERROR);
         return 1;
     }
     return 0;

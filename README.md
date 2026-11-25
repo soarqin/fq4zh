@@ -55,10 +55,10 @@ uv run --locked python .\tools\build_patcher.py --win "Windows 版目录" --dos 
 
 ### 使用单文件补丁工具
 
-从 [GitHub Releases](https://github.com/soarqin/fq4zh/releases) 下载并解压补丁包，或使用本地构建结果。双击 `FQ4ChinesePatch.exe`，通过「浏览…」选择 Windows 日文版 v1.10 的 `fq4.exe`。在「游戏语言」中选择「繁體中文」或「简体中文」，再选择一种启动方式。
+从 [GitHub Releases](https://github.com/soarqin/fq4zh/releases) 下载并解压补丁包，或使用本地构建结果。双击 `FQ4ChinesePatch.exe`，通过「瀏覽…」选择 Windows 日文版 v1.10 的 `fq4.exe`。在左侧选择「繁體中文」或「简体中文」，补丁工具界面和游戏语言会一起切换。接着在底部选择一种补丁方式。
 
-- 「生成中文版 EXE」在原版游戏目录生成可以双击启动的程序。繁体版文件名为 `fq4.zh.exe`，简体版为 `fq4.zh-CN.exe`。已有同名文件时，工具会复用内容相同的文件，或提示先重命名内容不同的文件。
-- 「以内存补丁启动」立即启动游戏，汉化仅在本次运行中生效。游戏从原版目录读取资源和存档。
+- 「產生中文版 EXE」或「生成中文版 EXE」在原版游戏目录生成可以双击启动的程序。繁体版文件名为 `fq4.zh.exe`，简体版为 `fq4.zh-CN.exe`。已有同名文件时，工具会复用内容相同的文件，或提示先重命名内容不同的文件。
+- 「以記憶體補丁啟動」或「以内存补丁启动」立即启动游戏，汉化仅在本次运行中生效。游戏从原版目录读取资源和存档。
 
 ## 游戏手册
 

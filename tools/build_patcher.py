@@ -144,8 +144,7 @@ def build_patcher(windows, dos, output, work, *, payload_dir=None):
     (work / 'patcher_version.h').write_text(
         f'#define FQ4_VERSION "{version}"\n'
         f'#define FQ4_VERSION_NUMERIC {numbers}\n'
-        f'#define FQ4_HEADER "First Queen IV  /  v{version}"\n'
-        f'#define FQ4_CAPTION "First Queen IV 中文补丁 v{version}"\n',
+        f'#define FQ4_HEADER "First Queen IV  /  v{version}"\n',
         encoding='utf-8')
 
     resources = work / 'patcher.res'

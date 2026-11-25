@@ -21,7 +21,8 @@ from smoke import ENUM, USER, await_value, caption, ct, windows
 SOURCE_CONTROL, BROWSE_BUTTON, WRITE_BUTTON, LAUNCH_BUTTON, STATUS_CONTROL = range(1001, 1006)
 TRADITIONAL_BUTTON, SIMPLIFIED_BUTTON = 1006, 1007
 DISK_DETAIL = 1016
-TOOL_TITLE = f'First Queen IV 中文补丁 v{project_version()}'
+VERSION = project_version()
+TOOL_TITLE = f'First Queen IV 中文補丁 v{VERSION}'
 
 
 def digest(path):
@@ -119,7 +120,7 @@ def verify(candidate):
     def browse_source():
         post(dialog, BROWSE_BUTTON)
         chooser = await_value(errors)
-        assert caption(chooser) == '选择日文版 First Queen IV'
+        assert caption(chooser) == '選擇日文版 First Queen IV'
         fields = []
 
         @ENUM
@@ -153,7 +154,7 @@ def verify(candidate):
             error = errors()
             if error:
                 raise RuntimeError(f'Memory mode displayed an error dialog. {popup_text(error)}')
-            if '中文版已启动' not in caption(USER.GetDlgItem(dialog, STATUS_CONTROL)):
+            if '中文版已啟動' not in caption(USER.GetDlgItem(dialog, STATUS_CONTROL)):
                 return None
             return next(iter(parent.children()), None)
 
@@ -166,14 +167,23 @@ def verify(candidate):
 
     try:
         dialog = await_value(lambda: next((w for w in windows(patcher.pid) if caption(w) == TOOL_TITLE), None))
-        assert caption(USER.GetDlgItem(dialog, WRITE_BUTTON)) == '生成中文版 EXE'
+        assert caption(USER.GetDlgItem(dialog, WRITE_BUTTON)) == '產生中文版 EXE'
         focus_game(dialog)
         assert USER.IsDlgButtonChecked(dialog, TRADITIONAL_BUTTON) == 1
         detail = USER.GetDlgItem(dialog, DISK_DETAIL)
-        for ident, suffix in ((SIMPLIFIED_BUTTON, '.zh-CN.exe'), (TRADITIONAL_BUTTON, '.zh.exe')):
+        for ident, suffix, title, write, hint, error in (
+            (SIMPLIFIED_BUTTON, '.zh-CN.exe', f'First Queen IV 中文补丁 v{VERSION}',
+             '生成中文版 EXE', '支持', '请选择日文版游戏 EXE。'),
+            (TRADITIONAL_BUTTON, '.zh.exe', TOOL_TITLE,
+             '產生中文版 EXE', '支援', '請選擇日文版遊戲 EXE。'),
+        ):
             USER.SendMessageW(USER.GetDlgItem(dialog, ident), 0xF5, 0, 0)  # BM_CLICK
             assert USER.IsDlgButtonChecked(dialog, ident) == 1
+            assert caption(dialog) == title
+            assert caption(USER.GetDlgItem(dialog, WRITE_BUTTON)) == write
+            assert caption(USER.GetDlgItem(dialog, STATUS_CONTROL)).startswith(hint)
             assert suffix in caption(detail)
+            reject(WRITE_BUTTON, error)
         browse_source()
         report['original_selected_through_file_chooser'] = True
 
@@ -183,8 +193,8 @@ def verify(candidate):
         changed[-1] ^= 1
         altered.write_bytes(changed)
         select(altered)
-        reject(WRITE_BUTTON, 'v1.10 原始 EXE')
-        reject(LAUNCH_BUTTON, 'v1.10 原始 EXE')
+        reject(WRITE_BUTTON, 'v1.10 的原始 EXE')
+        reject(LAUNCH_BUTTON, 'v1.10 的原始 EXE')
         assert not altered.with_suffix('.zh.exe').exists() and not parent.children()
         report['incorrect_source_rejected_in_both_modes'] = True
 
@@ -228,7 +238,7 @@ def verify(candidate):
         select(source)
         marker = b'Existing output to preserve'
         chinese.write_bytes(marker)
-        reject(WRITE_BUTTON, '同目录已有 fq4.zh.exe')
+        reject(WRITE_BUTTON, '同目錄已有 fq4.zh.exe')
         assert chinese.read_bytes() == marker
         chinese.unlink()
         report['existing_file_preserved'] = True
@@ -237,7 +247,7 @@ def verify(candidate):
         for _ in range(2):
             USER.SendMessageW(file_status, 0x0C, 0, ct.c_wchar_p(''))
             post(dialog, WRITE_BUTTON)
-            await_value(lambda: '已就绪。' in caption(file_status))
+            await_value(lambda: '已就緒。' in caption(file_status))
             assert digest(chinese) == metadata['target_sha256']
         assert not list(game_dir.glob(chinese.name + '.*.tmp'))
 
