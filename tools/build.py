@@ -68,8 +68,10 @@ def fit(raw, width, *, fullwidth):
     return raw + b' ' * remaining
 
 
-def patch_game_ui(pe, source, glyphs, rules, nations, add):
-    find = re.compile('|'.join(re.escape(s) for s in sorted(rules, key=len, reverse=True)))
+def patch_game_ui(pe, source, glyphs, rules, nations, add, *, convert):
+    terms = '|'.join(re.escape(s) for s in sorted(rules, key=len, reverse=True))
+    # Preserve the original byte offsets of menu controls and format arguments.
+    split = re.compile(rf'({terms}|@[A-Za-z0-9]|%\d*[dxs]|[\x01\x02\t\r\n])')
     rows = []
     legend = {}
     for row in win_ui(source):
@@ -82,20 +84,27 @@ def patch_game_ui(pe, source, glyphs, rules, nations, add):
             legend[index] = add(glyphs.cells(target) + b'\0')
             rows.append(dict(**row, target=target, origin='nation-table'))
             continue
-        translated = find.sub(lambda match: rules[match[0]], ja)
+        parts = split.split(ja)
+        localized = [rules.get(part, part) for part in parts]
+        targets = list(map(convert, localized))
+        translated = ''.join(targets)
         if KANA.search(translated):
             raise ValueError(f'Untranslated UI at 0x{off:x}: {translated}')
+        if translated != convert(''.join(localized)):
+            raise ValueError(f'Inconsistent UI conversion at 0x{off:x}: {translated}')
+        start = off
         matched = False
-        for match in find.finditer(ja):
-            start = off + len(ja[:match.start()].encode('cp932'))
-            old = match[0].encode('cp932')
-            target = rules[match[0]]
-            try:
-                new = fit(glyphs.cells(target), len(old), fullwidth=True)
-            except ValueError as error:
-                raise ValueError((hex(off), match[0], target, str(error))) from error
-            pe.patch(IMAGE_BASE + start, old, new)
-            matched = True
+        for part, target in zip(parts, targets):
+            old = part.encode('cp932')
+            if part in rules or target != part:
+                try:
+                    new = fit(glyphs.cells(target), len(old), fullwidth=True)
+                except ValueError as error:
+                    raise ValueError((hex(off), part, target, str(error))) from error
+                pe.patch(IMAGE_BASE + start, old, new)
+                matched = True
+            start += len(old)
+        assert start == off + row['bytes']
         if matched:
             rows.append(dict(**row, target=translated, origin='ui-terms'))
     return rows, add(b''.join(u32(legend[index]) for index in range(7)), 4)
@@ -218,8 +227,7 @@ def localize_dialog(raw, convert, font_name):
         pos += 2
         if translate:
             seen.add(original)
-            if original in DIALOG_TEXT:
-                original = convert(DIALOG_TEXT[original])
+            original = convert(DIALOG_TEXT.get(original, original))
             if KANA.search(original):
                 raise ValueError(f'Untranslated startup dialog text: {original}')
         if font:
@@ -334,7 +342,7 @@ def build(windows, dos, out, work, *, locale='zh-TW', memory_compatible=False):
 
     rules = dict(line.split('\t') for line in (ROOT / 'tools' / 'ui_terms.tsv').read_text(encoding='utf-8').splitlines())
     nations = [row['target'] for row in terms if row['kind'] == 'nation']
-    ui, legend = patch_game_ui(pe, source, glyphs, {jp: convert(zh) for jp, zh in rules.items()}, nations, add)
+    ui, legend = patch_game_ui(pe, source, glyphs, rules, nations, add, convert=convert)
     ui.extend(patch_diagnostics(pe, source, glyphs, add, convert))
     bank = (windows / 'DATA' / 'FQFBANK').read_bytes()
     events = event_text_records(bank, glyphs, add, convert)
