@@ -1,6 +1,6 @@
 [project]
 name = "fq4zh"
-version = "1.0.1"
+version = "1.0.2"
 license = "MIT"
 requires-python = ">=3.9"
 dependencies = [

@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-25
+
+### Changed
+
+- 切换左侧的简繁选项时，补丁工具的标题、按钮、状态和错误提示也会立即切换语言。
+
+### Fixed
+
+- 补译援军名单标题、势力图国家名、骑马菜单、战场消息、系统提示和两处地图事件，补齐部分简体界面术语。
+
 ## [1.0.1] - 2026-11-23
 
 ### Changed
@@ -36,6 +46,7 @@
 - 修复地图部队名、状态栏等位置的中文显示问题，并校正繁体文字的垂直位置。
 - 为音效特效初始化提供兼容性回退。
 
-[Unreleased]: https://github.com/soarqin/fq4zh/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/soarqin/fq4zh/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.2
 [1.0.1]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.1
 [1.0.0]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.0
