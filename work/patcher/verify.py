@@ -38,22 +38,6 @@ def map_caption(record):
                    if sprite['type'] == 10)
 
 
-def verify_activation(window, read, _output, result):
-    def send(message, wparam):
-        assert USER.SendMessageTimeoutW(window, message, wparam, 0, 2, 1000, None)
-
-    for activation in (1, 2):  # WA_ACTIVE and WA_CLICKACTIVE
-        # Reproduce a stale pause flag, then deliver only the window activation.
-        send(0x1C, 0)  # WM_ACTIVATEAPP(FALSE)
-        for inactive in (0, 0x10000 | activation):
-            send(6, inactive)  # WM_ACTIVATE, inactive or minimized
-            assert read(0x5E90A0, 4) == bytes(4)
-        paused_time = read(0x5E91AC, 4)
-        send(6, activation)
-        await_value(lambda: read(0x5E91AC, 4) != paused_time, 2)
-    result['activation_without_app_notification'] = True
-
-
 class GameProcess:
     def __init__(self, process):
         self.process = process
@@ -267,7 +251,7 @@ def verify(candidate):
             assert digest(chinese) == metadata['target_sha256']
         assert not list(game_dir.glob(chinese.name + '.*.tmp'))
 
-        check(chinese, output / 'disk-explore', 2, 1, verify_interior=verify_activation)
+        check(chinese, output / 'disk-explore', 2, 1)
         disk = result_at(output / 'disk-explore')
         assert map_caption(disk) == '利斯萊姆'
         assert 0 <= disk['exit_code'] < 0x80000000 and disk['save_matches']
@@ -278,7 +262,6 @@ def verify(candidate):
         report['disk_chinese_sha256'] = digest(chinese)
         report['disk_map_caption'] = map_caption(disk)
         report['disk_exit_code'] = disk['exit_code']
-        report['disk_activation_without_app_notification'] = disk['activation_without_app_notification']
         report['save_sha256'] = save_hash
         report['opening_dialogue_buffers'] = opening['story_buffers_seen']
         print(json.dumps(report, ensure_ascii=False))

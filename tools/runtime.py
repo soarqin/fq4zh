@@ -52,31 +52,22 @@ class Code:
         return self.data
 
 
-def patch_window_activation(pe):
-    address = 0x43E0F5  # WM_ACTIVATE in the main window procedure.
-    original = bytes.fromhex(
-        '8b 44 24 2c 85 c0 0f 84 c6 01 00 00 0f 86 60 04 00 00 '
-        '83 f8 02 0f 87 57 04 00 00 a1 ec 91 5e 00 85 c0 74 06 '
-        '8b 10 50 ff 52 1c 5f 5e 5d 33 c0 5b 83 c4 10 c2 10 00'
-    )
-    code = Code(address)
-    code.emit('8b 44 24 2c 48 83 f8 01')  # wParam == WA_ACTIVE or WA_CLICKACTIVE, not minimized.
-    code.relative('77', 'window_default')
-    # A window can reactivate without a matching WM_ACTIVATEAPP.
-    code.emit('c7 05', 0x5E90A0)  # Game loop active.
-    code.emit('01 00 00 00')
-    # GetMessage can dispatch sent activation messages while waiting for a queued message.
-    code.emit('8b 44 24 24 6a 00 6a 00 6a 00 50')  # PostMessageA(hWnd, WM_NULL, 0, 0)
-    code.emit('ff 15', 0x4891E0)
-    code.label('window_default')
-    # DefWindowProc restores keyboard focus. The input poll already retries Acquire.
-    code.to_address('e9', 0x43E567)
-    pe.patch(address, original, bytes(code.finish()).ljust(len(original), b'\x90'))
-
-
 def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb, *, legend, events):
     base = IMAGE_BASE + pe.next_rva
     code = Code(base)
+
+    # Route return-to-title through WinMain's live setjmp frame. A return
+    # value of 1 still exits the game, while 2 restarts the title.
+    main_resume = code.label('main_resume')
+    code.emit('83 c4 08 85 c0')
+    code.to_address('0f 84', 0x43C609)
+    code.emit('83 f8 02')
+    code.to_address('0f 85', 0x43C673)
+    code.relative('e8', 'restart_title', 4)
+    code.to_address('e9', 0x43C609)
+    code.label('restart_title')
+    code.emit('55 8b ec')  # Supply the frame expected by the title cleanup epilogue.
+    code.to_address('e9', 0x4125F4)
 
     # The new message table is pointer-indexed UTF-16. The dialogue parser still
     # expects single-byte layout controls and two-byte glyph cells in its buffer.
@@ -191,8 +182,15 @@ def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb,
     code.emit('85 c0 c2 0c 00')  # Keep the load result and flags, then discard the read arguments.
 
     assert pe.section(b'.fq4uni', code.finish(), 0x60000020) == base
+    for address in (0x40199C, 0x42D6B7):
+        pe.patch(address, bytes.fromhex('6a 01 68 a0 89 52 00'),
+                 bytes.fromhex('6a 02 68') + u32(0x5C7EC8))
+    pe.patch(0x43C602, bytes.fromhex('83 c4 08 85 c0 75 6a'),
+             b'\xe9' + struct.pack('<i', main_resume - 0x43C607) + b'\x90' * 2)
+    # Initial title setup no longer needs to save a context in a temporary frame.
+    pe.patch(0x4125E1, bytes.fromhex('6a 00 68 a0 89 52 00 e8 7f a9 06 00 83 c4 10 85 c0 74 25'),
+             bytes.fromhex('83 c4 08 eb 33') + b'\x90' * 14)
     patch_name_cells(pe, name_readers, indexed_name)
-    patch_window_activation(pe)
     pe.patch(0x4037E4, call(0x4037E4, 0x40A8B0), call(0x4037E4, legend_row))
     pe.patch(0x43CA84, bytes.fromhex('83 c4 0c 85 c0'), call(0x43CA84, bank_loaded))
     pe.patch(0x443657, bytes.fromhex('85c05f7415'), b'\xe9' + struct.pack('<i', reverb_fallback - 0x44365C))
