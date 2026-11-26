@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-27
+
 ### Fixed
 
 - 修复简体版大地图「部队移动」和阵型菜单「一列阵型」中残留的繁体字。
@@ -51,7 +53,8 @@
 - 修复地图部队名、状态栏等位置的中文显示问题，并校正繁体文字的垂直位置。
 - 为音效特效初始化提供兼容性回退。
 
-[Unreleased]: https://github.com/soarqin/fq4zh/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/soarqin/fq4zh/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.3
 [1.0.2]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.2
 [1.0.1]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.1
 [1.0.0]: https://github.com/soarqin/fq4zh/releases/tag/v1.0.0
