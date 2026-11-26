@@ -52,6 +52,28 @@ class Code:
         return self.data
 
 
+def patch_window_activation(pe):
+    address = 0x43E0F5  # WM_ACTIVATE in the main window procedure.
+    original = bytes.fromhex(
+        '8b 44 24 2c 85 c0 0f 84 c6 01 00 00 0f 86 60 04 00 00 '
+        '83 f8 02 0f 87 57 04 00 00 a1 ec 91 5e 00 85 c0 74 06 '
+        '8b 10 50 ff 52 1c 5f 5e 5d 33 c0 5b 83 c4 10 c2 10 00'
+    )
+    code = Code(address)
+    code.emit('8b 44 24 2c 48 83 f8 01')  # wParam == WA_ACTIVE or WA_CLICKACTIVE, not minimized.
+    code.relative('77', 'window_default')
+    # A window can reactivate without a matching WM_ACTIVATEAPP.
+    code.emit('c7 05', 0x5E90A0)  # Game loop active.
+    code.emit('01 00 00 00')
+    # GetMessage can dispatch sent activation messages while waiting for a queued message.
+    code.emit('8b 44 24 24 6a 00 6a 00 6a 00 50')  # PostMessageA(hWnd, WM_NULL, 0, 0)
+    code.emit('ff 15', 0x4891E0)
+    code.label('window_default')
+    # DefWindowProc restores keyboard focus. The input poll already retries Acquire.
+    code.to_address('e9', 0x43E567)
+    pe.patch(address, original, bytes(code.finish()).ljust(len(original), b'\x90'))
+
+
 def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb, *, legend, events):
     base = IMAGE_BASE + pe.next_rva
     code = Code(base)
@@ -170,6 +192,7 @@ def patch_runtime(pe, source, glyph_decode, glyph_encode, message_table, reverb,
 
     assert pe.section(b'.fq4uni', code.finish(), 0x60000020) == base
     patch_name_cells(pe, name_readers, indexed_name)
+    patch_window_activation(pe)
     pe.patch(0x4037E4, call(0x4037E4, 0x40A8B0), call(0x4037E4, legend_row))
     pe.patch(0x43CA84, bytes.fromhex('83 c4 0c 85 c0'), call(0x43CA84, bank_loaded))
     pe.patch(0x443657, bytes.fromhex('85c05f7415'), b'\xe9' + struct.pack('<i', reverb_fallback - 0x44365C))
